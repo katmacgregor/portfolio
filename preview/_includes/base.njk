@@ -2,11 +2,12 @@
   Shared page shell. Each page sets its own front matter:
     title        page name; the tab reads "<title> · Katrina MacGregor"
     fullTitle    (optional) replaces the whole title, used by the home page
-    description  (optional) meta description
+    description  meta description; also used for the share preview (set one on every page)
     css          (optional) extra stylesheets after main.css, e.g. ["assets/css/craft.css"]
     scripts      (optional) extra scripts after partials.js, e.g. [{ "src": "assets/js/x.js", "defer": true }]
     preload      (optional) extra images to preload, e.g. ["assets/images/hp/parchment-bg.webp"]
     bodyClass / bodyAttrs   (optional) added to <body>
+    noindex      (optional) true adds a robots noindex tag and skips the canonical/share tags (404 page)
     absoluteRoot (optional) true makes asset and nav links start with "/" instead of "../". Only for 404.html: GitHub serves it at any URL depth.
   Paths are written from the site root; {{ root }} turns them into "../" form for pages in work/.
 -#}
@@ -16,9 +17,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ fullTitle or (title + " · Katrina MacGregor") }}</title>
+  {%- set pageTitle = fullTitle or (title + " · " + site.name) %}
+  {%- set pagePath = "/" if page.url == "/index.html" else page.url %}
+  <title>{{ pageTitle }}</title>
   {%- if description %}
   <meta name="description" content="{{ description }}">
+  {%- endif %}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- else %}
+  <link rel="canonical" href="{{ site.url }}{{ pagePath }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site.name }}">
+  <meta property="og:title" content="{{ pageTitle }}">
+  {%- if description %}
+  <meta property="og:description" content="{{ description }}">
+  {%- endif %}
+  <meta property="og:url" content="{{ site.url }}{{ pagePath }}">
+  <meta property="og:image" content="{{ site.url }}/{{ site.image }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ site.imageAlt }}">
+  <meta name="twitter:card" content="summary_large_image">
   {%- endif %}
   <link rel="icon" href="{{ root }}assets/images/favicon.ico">
   <link rel="preload" href="{{ root }}assets/fonts/Mulish-Variable.woff2" as="font" type="font/woff2" crossorigin>
