@@ -1,0 +1,914 @@
+/* 404 page: the ruby-slippers illustration (loaded by 404.html only). */
+
+/* Ambient loop: shimmer, sparkles and the idle tap. */
+@keyframes sequin-shimmer-0 {
+    0% { opacity: 1; }
+    4.4% { opacity: 0.79; }
+    8.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.6% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    17.5% { opacity: 0.71; }
+    21.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.9% { opacity: 0.62; }
+    45.5% { opacity: 1; }
+    65.5% { opacity: 0.64; }
+    75.1% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-1 {
+    0% { opacity: 1; }
+    3.9% { opacity: 0.75; }
+    6.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.1% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    16.4% { opacity: 0.76; }
+    21.7% { opacity: 1; }
+    23.1% { opacity: 1; }
+    42.9% { opacity: 0.7; }
+    53.9% { opacity: 1; }
+    77.5% { opacity: 0.66; }
+    86.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-2 {
+    0% { opacity: 1; }
+    3.6% { opacity: 0.73; }
+    7.3% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.6% { opacity: 0.66; }
+    14.6% { opacity: 1; }
+    18.4% { opacity: 0.74; }
+    21.7% { opacity: 1; }
+    23.1% { opacity: 1; }
+    42.6% { opacity: 0.7; }
+    50.1% { opacity: 1; }
+    64.9% { opacity: 0.65; }
+    73.5% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-3 {
+    0% { opacity: 1; }
+    2.6% { opacity: 0.7; }
+    4.9% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.0% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    18.7% { opacity: 0.73; }
+    21.3% { opacity: 1; }
+    23.1% { opacity: 1; }
+    37.3% { opacity: 0.65; }
+    45.7% { opacity: 1; }
+    74.4% { opacity: 0.64; }
+    84.8% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-4 {
+    0% { opacity: 1; }
+    4.1% { opacity: 0.78; }
+    7.5% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.9% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    19.0% { opacity: 0.79; }
+    21.9% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.5% { opacity: 0.62; }
+    49.3% { opacity: 1; }
+    62.9% { opacity: 0.7; }
+    72.2% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-5 {
+    0% { opacity: 1; }
+    3.9% { opacity: 0.78; }
+    8.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.6% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    19.3% { opacity: 0.73; }
+    22.3% { opacity: 1; }
+    23.1% { opacity: 1; }
+    47.6% { opacity: 0.67; }
+    56.6% { opacity: 1; }
+    65.1% { opacity: 0.65; }
+    71.7% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-6 {
+    0% { opacity: 1; }
+    4.4% { opacity: 0.72; }
+    8.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.6% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    16.7% { opacity: 0.78; }
+    20.8% { opacity: 1; }
+    23.1% { opacity: 1; }
+    36.8% { opacity: 0.66; }
+    46.2% { opacity: 1; }
+    76.4% { opacity: 0.71; }
+    86.0% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-7 {
+    0% { opacity: 1; }
+    4.2% { opacity: 0.77; }
+    7.9% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.3% { opacity: 0.68; }
+    14.6% { opacity: 1; }
+    18.8% { opacity: 0.72; }
+    22.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    37.4% { opacity: 0.68; }
+    46.7% { opacity: 1; }
+    74.3% { opacity: 0.71; }
+    84.8% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-8 {
+    0% { opacity: 1; }
+    2.5% { opacity: 0.73; }
+    6.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.7% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    17.0% { opacity: 0.71; }
+    22.4% { opacity: 1; }
+    23.1% { opacity: 1; }
+    41.4% { opacity: 0.67; }
+    51.7% { opacity: 1; }
+    65.8% { opacity: 0.67; }
+    76.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-9 {
+    0% { opacity: 1; }
+    4.0% { opacity: 0.74; }
+    6.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.2% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    18.9% { opacity: 0.77; }
+    21.2% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.6% { opacity: 0.7; }
+    45.2% { opacity: 1; }
+    68.8% { opacity: 0.68; }
+    75.5% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-10 {
+    0% { opacity: 1; }
+    3.9% { opacity: 0.76; }
+    7.1% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.6% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    19.0% { opacity: 0.79; }
+    21.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    46.0% { opacity: 0.69; }
+    56.0% { opacity: 1; }
+    74.4% { opacity: 0.66; }
+    85.8% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-11 {
+    0% { opacity: 1; }
+    3.0% { opacity: 0.73; }
+    6.1% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.6% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    17.4% { opacity: 0.78; }
+    20.7% { opacity: 1; }
+    23.1% { opacity: 1; }
+    40.2% { opacity: 0.64; }
+    50.6% { opacity: 1; }
+    66.1% { opacity: 0.65; }
+    74.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-12 {
+    0% { opacity: 1; }
+    2.9% { opacity: 0.75; }
+    7.6% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.7% { opacity: 0.66; }
+    14.6% { opacity: 1; }
+    16.6% { opacity: 0.74; }
+    20.9% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.9% { opacity: 0.72; }
+    54.0% { opacity: 1; }
+    75.6% { opacity: 0.69; }
+    83.6% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-13 {
+    0% { opacity: 1; }
+    2.4% { opacity: 0.73; }
+    7.4% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.2% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    18.8% { opacity: 0.78; }
+    21.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    38.9% { opacity: 0.71; }
+    50.3% { opacity: 1; }
+    66.7% { opacity: 0.69; }
+    73.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-14 {
+    0% { opacity: 1; }
+    2.7% { opacity: 0.79; }
+    8.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.8% { opacity: 0.62; }
+    14.6% { opacity: 1; }
+    18.1% { opacity: 0.78; }
+    20.4% { opacity: 1; }
+    23.1% { opacity: 1; }
+    40.0% { opacity: 0.7; }
+    51.7% { opacity: 1; }
+    71.1% { opacity: 0.69; }
+    83.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-15 {
+    0% { opacity: 1; }
+    3.7% { opacity: 0.71; }
+    6.5% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.6% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    16.8% { opacity: 0.73; }
+    20.4% { opacity: 1; }
+    23.1% { opacity: 1; }
+    42.3% { opacity: 0.66; }
+    52.6% { opacity: 1; }
+    75.7% { opacity: 0.69; }
+    85.2% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-16 {
+    0% { opacity: 1; }
+    4.0% { opacity: 0.73; }
+    7.9% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.4% { opacity: 0.7; }
+    14.6% { opacity: 1; }
+    19.2% { opacity: 0.74; }
+    21.4% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.6% { opacity: 0.7; }
+    57.2% { opacity: 1; }
+    62.6% { opacity: 0.7; }
+    71.8% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-17 {
+    0% { opacity: 1; }
+    3.5% { opacity: 0.74; }
+    6.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.5% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    17.5% { opacity: 0.76; }
+    22.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    39.2% { opacity: 0.67; }
+    47.2% { opacity: 1; }
+    67.0% { opacity: 0.64; }
+    78.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-18 {
+    0% { opacity: 1; }
+    4.2% { opacity: 0.79; }
+    7.3% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.6% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    17.5% { opacity: 0.79; }
+    21.4% { opacity: 1; }
+    23.1% { opacity: 1; }
+    47.7% { opacity: 0.71; }
+    59.0% { opacity: 1; }
+    68.9% { opacity: 0.67; }
+    75.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-19 {
+    0% { opacity: 1; }
+    3.2% { opacity: 0.7; }
+    5.4% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.3% { opacity: 0.7; }
+    14.6% { opacity: 1; }
+    18.5% { opacity: 0.77; }
+    22.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    37.1% { opacity: 0.69; }
+    44.4% { opacity: 1; }
+    71.6% { opacity: 0.68; }
+    78.1% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-20 {
+    0% { opacity: 1; }
+    3.5% { opacity: 0.7; }
+    5.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.5% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    18.2% { opacity: 0.76; }
+    20.9% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.3% { opacity: 0.66; }
+    55.2% { opacity: 1; }
+    70.5% { opacity: 0.72; }
+    78.1% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-21 {
+    0% { opacity: 1; }
+    2.9% { opacity: 0.75; }
+    5.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.7% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    17.1% { opacity: 0.7; }
+    22.5% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.9% { opacity: 0.7; }
+    55.5% { opacity: 1; }
+    76.4% { opacity: 0.72; }
+    83.6% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-22 {
+    0% { opacity: 1; }
+    3.8% { opacity: 0.79; }
+    6.1% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.6% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    18.8% { opacity: 0.71; }
+    20.9% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.9% { opacity: 0.68; }
+    56.7% { opacity: 1; }
+    77.3% { opacity: 0.65; }
+    88.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-23 {
+    0% { opacity: 1; }
+    3.6% { opacity: 0.77; }
+    8.1% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.4% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    18.5% { opacity: 0.7; }
+    22.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.3% { opacity: 0.69; }
+    52.7% { opacity: 1; }
+    65.5% { opacity: 0.64; }
+    72.0% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-24 {
+    0% { opacity: 1; }
+    4.5% { opacity: 0.78; }
+    6.5% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.1% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    18.0% { opacity: 0.77; }
+    22.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.1% { opacity: 0.68; }
+    47.5% { opacity: 1; }
+    67.7% { opacity: 0.71; }
+    78.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-25 {
+    0% { opacity: 1; }
+    3.3% { opacity: 0.71; }
+    7.7% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.2% { opacity: 0.68; }
+    14.6% { opacity: 1; }
+    18.1% { opacity: 0.72; }
+    22.2% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.1% { opacity: 0.69; }
+    57.5% { opacity: 1; }
+    64.3% { opacity: 0.72; }
+    71.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-26 {
+    0% { opacity: 1; }
+    3.7% { opacity: 0.75; }
+    6.7% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.3% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    17.9% { opacity: 0.79; }
+    21.5% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.0% { opacity: 0.7; }
+    57.7% { opacity: 1; }
+    66.3% { opacity: 0.7; }
+    77.1% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-27 {
+    0% { opacity: 1; }
+    4.5% { opacity: 0.71; }
+    8.0% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.6% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    16.8% { opacity: 0.8; }
+    20.7% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.5% { opacity: 0.71; }
+    51.3% { opacity: 1; }
+    66.0% { opacity: 0.67; }
+    75.0% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-28 {
+    0% { opacity: 1; }
+    2.7% { opacity: 0.72; }
+    6.6% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.5% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    19.3% { opacity: 0.78; }
+    22.3% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.3% { opacity: 0.67; }
+    45.8% { opacity: 1; }
+    72.2% { opacity: 0.63; }
+    84.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-29 {
+    0% { opacity: 1; }
+    4.4% { opacity: 0.78; }
+    6.9% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.5% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    17.2% { opacity: 0.74; }
+    19.5% { opacity: 1; }
+    23.1% { opacity: 1; }
+    40.2% { opacity: 0.67; }
+    52.5% { opacity: 1; }
+    68.5% { opacity: 0.7; }
+    79.8% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-30 {
+    0% { opacity: 1; }
+    2.7% { opacity: 0.79; }
+    7.7% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.5% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    18.6% { opacity: 0.71; }
+    22.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.0% { opacity: 0.72; }
+    56.2% { opacity: 1; }
+    72.0% { opacity: 0.69; }
+    85.7% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-31 {
+    0% { opacity: 1; }
+    4.4% { opacity: 0.73; }
+    6.6% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.6% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    19.2% { opacity: 0.76; }
+    22.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    42.3% { opacity: 0.69; }
+    55.9% { opacity: 1; }
+    68.4% { opacity: 0.67; }
+    80.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-32 {
+    0% { opacity: 1; }
+    3.1% { opacity: 0.7; }
+    5.6% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.2% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    16.5% { opacity: 0.73; }
+    20.5% { opacity: 1; }
+    23.1% { opacity: 1; }
+    46.9% { opacity: 0.65; }
+    59.1% { opacity: 1; }
+    72.6% { opacity: 0.64; }
+    85.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-33 {
+    0% { opacity: 1; }
+    3.7% { opacity: 0.8; }
+    6.2% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.4% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    17.0% { opacity: 0.77; }
+    19.3% { opacity: 1; }
+    23.1% { opacity: 1; }
+    43.4% { opacity: 0.7; }
+    51.4% { opacity: 1; }
+    76.8% { opacity: 0.72; }
+    90.6% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-34 {
+    0% { opacity: 1; }
+    4.6% { opacity: 0.78; }
+    6.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.1% { opacity: 0.68; }
+    14.6% { opacity: 1; }
+    17.3% { opacity: 0.76; }
+    21.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.7% { opacity: 0.7; }
+    52.1% { opacity: 1; }
+    68.0% { opacity: 0.64; }
+    76.5% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-35 {
+    0% { opacity: 1; }
+    2.4% { opacity: 0.71; }
+    4.8% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.4% { opacity: 0.69; }
+    14.6% { opacity: 1; }
+    17.3% { opacity: 0.77; }
+    19.6% { opacity: 1; }
+    23.1% { opacity: 1; }
+    38.0% { opacity: 0.7; }
+    48.6% { opacity: 1; }
+    74.0% { opacity: 0.69; }
+    83.6% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-36 {
+    0% { opacity: 1; }
+    4.3% { opacity: 0.79; }
+    7.7% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.1% { opacity: 0.65; }
+    14.6% { opacity: 1; }
+    17.8% { opacity: 0.78; }
+    22.0% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.0% { opacity: 0.69; }
+    56.7% { opacity: 1; }
+    75.2% { opacity: 0.63; }
+    85.5% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-37 {
+    0% { opacity: 1; }
+    3.4% { opacity: 0.79; }
+    7.4% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.4% { opacity: 0.66; }
+    14.6% { opacity: 1; }
+    16.9% { opacity: 0.77; }
+    22.2% { opacity: 1; }
+    23.1% { opacity: 1; }
+    35.9% { opacity: 0.64; }
+    42.2% { opacity: 1; }
+    76.0% { opacity: 0.72; }
+    86.6% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-38 {
+    0% { opacity: 1; }
+    3.7% { opacity: 0.78; }
+    7.5% { opacity: 1; }
+    8.5% { opacity: 1; }
+    11.0% { opacity: 0.67; }
+    14.6% { opacity: 1; }
+    16.7% { opacity: 0.74; }
+    21.1% { opacity: 1; }
+    23.1% { opacity: 1; }
+    44.9% { opacity: 0.62; }
+    51.8% { opacity: 1; }
+    65.3% { opacity: 0.67; }
+    74.4% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-39 {
+    0% { opacity: 1; }
+    4.5% { opacity: 0.72; }
+    7.9% { opacity: 1; }
+    8.5% { opacity: 1; }
+    12.3% { opacity: 0.64; }
+    14.6% { opacity: 1; }
+    16.9% { opacity: 0.73; }
+    21.3% { opacity: 1; }
+    23.1% { opacity: 1; }
+    36.0% { opacity: 0.71; }
+    42.7% { opacity: 1; }
+    64.8% { opacity: 0.63; }
+    72.3% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-40 {
+    0% { opacity: 1; }
+    3.5% { opacity: 0.77; }
+    6.1% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.4% { opacity: 0.66; }
+    14.6% { opacity: 1; }
+    18.5% { opacity: 0.74; }
+    20.6% { opacity: 1; }
+    23.1% { opacity: 1; }
+    37.9% { opacity: 0.71; }
+    47.8% { opacity: 1; }
+    72.1% { opacity: 0.65; }
+    78.7% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes sequin-shimmer-41 {
+    0% { opacity: 1; }
+    4.1% { opacity: 0.71; }
+    6.4% { opacity: 1; }
+    8.5% { opacity: 1; }
+    10.8% { opacity: 0.63; }
+    14.6% { opacity: 1; }
+    17.0% { opacity: 0.71; }
+    19.5% { opacity: 1; }
+    23.1% { opacity: 1; }
+    45.8% { opacity: 0.7; }
+    56.0% { opacity: 1; }
+    69.9% { opacity: 0.63; }
+    80.0% { opacity: 1; }
+    100% { opacity: 1; }
+}
+#slipper-bg, #slipper-fg,
+#sparkle, #sparkle1, #sparkle2, #sparkle3, #sparkle4 {
+    transform-box: view-box;
+    transform-origin: 0 0;
+}
+#slipper-bg {
+    animation: tap-bg 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#slipper-fg {
+    animation: tap-fg 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#sparkle {
+    animation: tap-sparkle 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#sparkle1 {
+    animation: tap-sparkle1 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#sparkle2 {
+    animation: tap-sparkle2 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#sparkle3 {
+    animation: tap-sparkle3 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+#sparkle4 {
+    animation: tap-sparkle4 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
+}
+/* Each sparkle's "together" matrix already has an equal-and-opposite
+   rotation baked in relative to its parent slipper's rotation, so the
+   sparkle's absolute orientation stays fixed (light doesn't rotate) -
+   only its apparent size pulses, like a glint of light catching it. */
+@keyframes sparkle-pulse-0 {
+    0% { transform: scale(1.0); }
+    2.4% { transform: scale(0.68); }
+    8.0% { transform: scale(1.0); }
+    8.5% { transform: scale(1.0); }
+    12.7% { transform: scale(1.29); }
+    14.6% { transform: scale(1.0); }
+    17.0% { transform: scale(0.71); }
+    20.9% { transform: scale(1.0); }
+    23.1% { transform: scale(1.0); }
+    39.1% { transform: scale(1.18); }
+    51.4% { transform: scale(1.0); }
+    75.2% { transform: scale(0.87); }
+    83.3% { transform: scale(1.0); }
+    100% { transform: scale(1.0); }
+}
+@keyframes sparkle-pulse-1 {
+    0% { transform: scale(1.0); }
+    3.7% { transform: scale(0.71); }
+    6.0% { transform: scale(1.0); }
+    8.5% { transform: scale(1.0); }
+    11.5% { transform: scale(1.29); }
+    14.6% { transform: scale(1.0); }
+    18.7% { transform: scale(0.69); }
+    22.0% { transform: scale(1.0); }
+    23.1% { transform: scale(1.0); }
+    47.1% { transform: scale(1.19); }
+    54.9% { transform: scale(1.0); }
+    67.4% { transform: scale(0.88); }
+    74.7% { transform: scale(1.0); }
+    100% { transform: scale(1.0); }
+}
+@keyframes sparkle-pulse-2 {
+    0% { transform: scale(1.0); }
+    3.9% { transform: scale(0.76); }
+    7.7% { transform: scale(1.0); }
+    8.5% { transform: scale(1.0); }
+    11.9% { transform: scale(1.19); }
+    14.6% { transform: scale(1.0); }
+    19.2% { transform: scale(0.76); }
+    22.6% { transform: scale(1.0); }
+    23.1% { transform: scale(1.0); }
+    48.0% { transform: scale(1.22); }
+    61.1% { transform: scale(1.0); }
+    76.0% { transform: scale(0.87); }
+    88.1% { transform: scale(1.0); }
+    100% { transform: scale(1.0); }
+}
+@keyframes sparkle-pulse-3 {
+    0% { transform: scale(1.0); }
+    2.6% { transform: scale(0.7); }
+    7.5% { transform: scale(1.0); }
+    8.5% { transform: scale(1.0); }
+    11.9% { transform: scale(1.28); }
+    14.6% { transform: scale(1.0); }
+    17.7% { transform: scale(0.73); }
+    20.5% { transform: scale(1.0); }
+    23.1% { transform: scale(1.0); }
+    46.1% { transform: scale(1.22); }
+    58.8% { transform: scale(1.0); }
+    77.9% { transform: scale(0.85); }
+    91.2% { transform: scale(1.0); }
+    100% { transform: scale(1.0); }
+}
+@keyframes sparkle-pulse-4 {
+    0% { transform: scale(1.0); }
+    2.7% { transform: scale(0.66); }
+    7.9% { transform: scale(1.0); }
+    8.5% { transform: scale(1.0); }
+    12.6% { transform: scale(1.25); }
+    14.6% { transform: scale(1.0); }
+    16.9% { transform: scale(0.76); }
+    19.5% { transform: scale(1.0); }
+    23.1% { transform: scale(1.0); }
+    34.1% { transform: scale(1.14); }
+    43.5% { transform: scale(1.0); }
+    63.7% { transform: scale(0.87); }
+    70.8% { transform: scale(1.0); }
+    100% { transform: scale(1.0); }
+}
+@keyframes tap-sparkle {
+    0% {
+        transform: matrix(0.056602,0,0,0.060398,1152.580795,627.584401);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.048339,0.004785,-0.005105,0.051581,1158.12012,629.633009);
+    }
+    23.1%, 100% {
+        transform: matrix(0.056602,0,0,0.060398,1152.580795,627.584401);
+    }
+}
+@keyframes tap-sparkle1 {
+    0% {
+        transform: matrix(0.031016,0,0,0.030791,1153.71711,583.360356);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.030865,0.003055,-0.003033,0.030641,1157.249747,581.196222);
+    }
+    23.1%, 100% {
+        transform: matrix(0.031016,0,0,0.030791,1153.71711,583.360356);
+    }
+}
+@keyframes tap-sparkle2 {
+    0% {
+        transform: matrix(0.062668,0,0,0.06687,1120.274189,633.391053);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.071118,-0.005114,0.005457,0.075887,1114.153388,631.291334);
+    }
+    23.1%, 100% {
+        transform: matrix(0.062668,0,0,0.06687,1120.274189,633.391053);
+    }
+}
+@keyframes tap-sparkle3 {
+    0% {
+        transform: matrix(0.03652,0,0,0.038969,974.4541,497.004015);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.031361,-0.002255,0.002597,0.036113,976.533304,499.680382);
+    }
+    23.1%, 100% {
+        transform: matrix(0.03652,0,0,0.038969,974.4541,497.004015);
+    }
+}
+@keyframes tap-sparkle4 {
+    0% {
+        transform: matrix(0.031016,0,0,0.030791,1152.093709,586.465994);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.027997,-0.002013,0.001999,0.027794,1153.204922,589.094468);
+    }
+    23.1%, 100% {
+        transform: matrix(0.031016,0,0,0.030791,1152.093709,586.465994);
+    }
+}
+@keyframes tap-bg {
+    0% {
+        transform: matrix(0.939369,0,0,0.939369,66.096532,41.66542);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.934801,-0.092524,0.092524,0.934801,-3.925063,166.312404);
+    }
+    23.1%, 100% {
+        transform: matrix(0.939369,0,0,0.939369,66.096532,41.66542);
+    }
+}
+@keyframes tap-fg {
+    0% {
+        transform: matrix(1,0,0,1,-135.259209,67.96547);
+        animation-timing-function: cubic-bezier(0.34,1.56,0.64,1);
+    }
+    8.5%, 14.6% {
+        transform: matrix(0.99632,0.085706,-0.085706,0.99632,-74.975162,-25.519037);
+    }
+    23.1%, 100% {
+        transform: matrix(1,0,0,1,-135.259209,67.96547);
+    }
+}
+
+/* Clicking "home" doesn't navigate immediately — it plays three quick
+   taps first, then navigates. These are dedicated keyframes, not the
+   ambient loop sped up: the original tap-bg/tap-fg keyframes hold the
+   "together" pose for only 8.5%-14.6% of a leisurely 6.5s cycle, which
+   is fine for an idle loop but becomes ~50ms of motion (invisible) if
+   you just shorten the duration. These reuse the same apart/together
+   matrices but with breakpoints paced for a snappy, still-visible
+   500-600ms tap. Higher specificity than the SVG's own #slipper-bg /
+   #slipper-fg rules (class + id beats id alone), so no !important. */
+@keyframes tap-bg-click {
+  0%, 100% { transform: matrix(0.939369,0,0,0.939369,66.096532,41.66542); }
+  40%, 55% { transform: matrix(0.934801,-0.092524,0.092524,0.934801,-3.925063,166.312404); }
+}
+@keyframes tap-fg-click {
+  0%, 100% { transform: matrix(1,0,0,1,-135.259209,67.96547); }
+  40%, 55% { transform: matrix(0.99632,0.085706,-0.085706,0.99632,-74.975162,-25.519037); }
+}
+@keyframes tap-sparkle-click {
+  0%, 100% { transform: matrix(0.056602,0,0,0.060398,1152.580795,627.584401); }
+  40%, 55% { transform: matrix(0.048339,0.004785,-0.005105,0.051581,1158.12012,629.633009); }
+}
+@keyframes tap-sparkle1-click {
+  0%, 100% { transform: matrix(0.031016,0,0,0.030791,1153.71711,583.360356); }
+  40%, 55% { transform: matrix(0.030865,0.003055,-0.003033,0.030641,1157.249747,581.196222); }
+}
+@keyframes tap-sparkle2-click {
+  0%, 100% { transform: matrix(0.062668,0,0,0.06687,1120.274189,633.391053); }
+  40%, 55% { transform: matrix(0.071118,-0.005114,0.005457,0.075887,1114.153388,631.291334); }
+}
+@keyframes tap-sparkle3-click {
+  0%, 100% { transform: matrix(0.03652,0,0,0.038969,974.4541,497.004015); }
+  40%, 55% { transform: matrix(0.031361,-0.002255,0.002597,0.036113,976.533304,499.680382); }
+}
+@keyframes tap-sparkle4-click {
+  0%, 100% { transform: matrix(0.031016,0,0,0.030791,1152.093709,586.465994); }
+  40%, 55% { transform: matrix(0.027997,-0.002013,0.001999,0.027794,1153.204922,589.094468); }
+}
+.slippers-clicked #slipper-bg { animation: tap-bg-click 0.55s ease-in-out 3; }
+.slippers-clicked #slipper-fg { animation: tap-fg-click 0.55s ease-in-out 3; }
+.slippers-clicked #sparkle { animation: tap-sparkle-click 0.55s ease-in-out 3; }
+.slippers-clicked #sparkle1 { animation: tap-sparkle1-click 0.55s ease-in-out 3; }
+.slippers-clicked #sparkle2 { animation: tap-sparkle2-click 0.55s ease-in-out 3; }
+.slippers-clicked #sparkle3 { animation: tap-sparkle3-click 0.55s ease-in-out 3; }
+.slippers-clicked #sparkle4 { animation: tap-sparkle4-click 0.55s ease-in-out 3; }

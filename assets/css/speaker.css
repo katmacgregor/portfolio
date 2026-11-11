@@ -1,0 +1,656 @@
+/* ==========================================================================
+   Beeps & boops: interactive speaker (markup in index.html, logic in
+   assets/js/speaker.js).
+
+   Naming:  .spk-*   component blocks and parts
+            .is-*    state classes toggled by the script
+            #spk-*   artwork ids (the SVG is prefixed so nothing clashes
+                     with the other inline illustrations on the page)
+
+   Contents
+     1. Tokens (mapped onto main.css :root, with a dark variant)
+     2. Layout: slot, frame, stage, entry overrides
+     3. Larger view: scrim and expand button
+     4. Speaker artwork: buttons, press targets, LED, notes, phone, link
+     5. Feedback badge
+     6. Drawer: tab, header, action rows, keycaps
+     7. Reduced motion
+   ========================================================================== */
+
+
+/* Animatable sizes. --w is the frame width; --t and --u run 0 to 1 while the
+   frame resizes. --t snaps halfway (glyph size), --u follows smoothly
+   (spacing and box sizes). */
+@property --w { syntax: "<length>"; inherits: true; initial-value: 408px; }
+@property --t { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --u { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --ar { syntax: "<number>"; inherits: true; initial-value: .75; }
+
+
+/* ==========================================================================
+   1. Tokens
+   ========================================================================== */
+
+.spk-slot {
+  /* surfaces */
+  --spk-surface: #fff;                              /* drawer, tab */
+  --spk-surface-hover: #f6f6f4;                     /* action row hover */
+  --spk-glass: rgb(255 255 255 / .45);              /* feedback badge */
+  --spk-glass-edge: rgb(255 255 255 / .7);
+  --spk-control: rgb(0 0 0 / .1);                   /* expand button */
+  --spk-control-hover: rgb(0 0 0 / .16);
+  --spk-lift: 0 20px 60px rgb(0 0 0 / .35);         /* shadow of the larger view */
+  --spk-icon-off: #cfcfd2;                          /* power icon while the speaker is off */
+
+  /* colour roles, all from main.css */
+  --spk-ink: var(--text-primary);
+  --spk-ink-soft: var(--text-secondary);
+  --spk-ink-faint: var(--text-muted);
+  --spk-line: var(--border);
+  --spk-line-strong: var(--border-strong);
+  --spk-accent: var(--color-blue);
+  --spk-on: var(--color-green);
+
+  /* stacking: above the sticky nav (100), below the doodles lightbox (2000) */
+  --spk-z-scrim: 1200;
+  --spk-z-frame: 1210;
+
+  --spk-ease: cubic-bezier(.2, .8, .2, 1);          /* drawer, stage, resize */
+  --spk-travel: 700ms ease-in-out;                  /* speaker zoom, phone, link slide */
+
+  /* frame geometry (--ar is height / width; narrow frames go square) */
+  --w: 408px;
+  --ar: .75;
+}
+
+@media (prefers-color-scheme: dark) {
+  .spk-slot {
+    --spk-surface: #2a2c2c;
+    --spk-surface-hover: rgb(255 255 255 / .06);
+    --spk-glass: rgb(38 40 40 / .55);
+    --spk-glass-edge: rgb(255 255 255 / .12);
+    --spk-control: rgb(255 255 255 / .12);
+    --spk-control-hover: rgb(255 255 255 / .2);
+    --spk-icon-off: #5c5e5e;
+  }
+}
+
+
+/* ==========================================================================
+   2. Layout
+   ========================================================================== */
+
+/* The media box is normally a fixed 4:3 crop. Here the frame sizes itself
+   (4:3, or square on narrow screens), and must not clip the larger view. */
+.gallery-entry__media--spk {
+  width: 100%;                                       /* stacked entries centre their children, so ask for the full width */
+  aspect-ratio: auto;
+  background: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+/* A transformed ancestor would become the containing block of the fixed
+   larger view, so this entry settles to no transform after its reveal. */
+html.has-js .gallery-entry.gallery-entry--spk.is-visible { transform: none; }   /* doubled class: outranks main.css's reveal rule */
+
+.spk-slot {
+  width: 100%;
+  aspect-ratio: calc(1 / var(--ar));
+}
+.spk-slot.is-small { --ar: 1; }                     /* narrow frames: square, so the drawer has room */
+
+.spk-frame {
+  --t: 0;
+  --u: 0;
+  --dh: 0px;                                        /* open drawer height + tab (set by script) */
+  --fit: .8;                                        /* speaker scale in the larger view (set by script) */
+
+  /* spacing follows --u (smooth); glyph size follows --t (snaps) */
+  --pad-x: calc(16px + 14px * var(--u));
+  --pad-top: calc(12px + 4px * var(--u));
+  --pad-bottom: calc(12px + 14px * var(--u));
+  --row-y: calc(2px + 1px * var(--u));
+  --head-gap: calc(8px + 6px * var(--u));
+  --sec-gap: calc(8px + 8px * var(--u));
+  --fs-head: calc(12px + 4px * var(--t));
+  --head-lh: calc(18px + 6px * var(--u));
+  --tab-h: 30px;
+  --exp: 26px;                                      /* expand button */
+  /* closed strip: equal space above and below the header row (+2px border) so its text is centred */
+  --tab: calc(var(--pad-top) * 2 + var(--head-lh) + 2px);
+  --badge: clamp(32px, calc(var(--w) * .1), 60px);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--media-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;         /* no grey flash over the buttons' hit areas on touch; presses show on the speaker itself */
+}
+
+.spk-stage {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 45%;
+  transform: translateY(calc(var(--tab) / -2));     /* closed drawer: centre the speaker in the room above it */
+  transition: transform 420ms var(--spk-ease), opacity 250ms ease;
+}
+.spk-stage svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: manipulation;
+}
+.spk-frame:not(.is-ready) .spk-stage { opacity: 0; }
+
+/* drawer open: speaker rises and shrinks. Expanded, --dh and --fit park it in
+   the room above the drawer instead; --u blends the two. */
+.spk-frame.is-open .spk-stage {
+  transform:
+    translateY(calc((-24% + 10% * var(--u)) * (1 - var(--u)) + (5% * (1 - var(--fit)) - var(--dh) / 2) * var(--u)))
+    scale(calc((.6 + .2 * var(--u)) * (1 - var(--u)) + var(--fit) * var(--u)));
+}
+
+
+/* ==========================================================================
+   3. Larger view
+   The same frame really resizes (--w animates), so type keeps its pixel size
+   instead of being scaled. While it is shrinking back it keeps .is-expanded
+   and gains .is-flying; the script removes both when the sizes match.
+   ========================================================================== */
+
+.spk-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);                     /* same dim and blur as the doodles lightbox (main.css) */
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+  backdrop-filter: blur(var(--overlay-blur));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+  z-index: var(--spk-z-scrim);
+}
+.spk-scrim.is-on { opacity: 1; pointer-events: auto; touch-action: pinch-zoom; }   /* pinch still zooms; the page can't pan underneath, and a swipe down dismisses (speaker.js) */
+
+html.spk-locked { overflow: hidden; scrollbar-gutter: stable; }
+
+.spk-frame.is-expanded {
+  --t: var(--grow, 1);                              /* bigger type only when the frame really gets bigger (set by script) */
+  --u: 1;
+  --w: min(94vw, calc(86vh / var(--ar)), 900px);
+  position: fixed;
+  z-index: var(--spk-z-frame);
+  left: 50%;
+  top: 50%;
+  width: var(--w);
+  height: calc(var(--w) * var(--ar));
+  transform: translate(-50%, -50%);
+  border-radius: 14px;
+  box-shadow: var(--spk-lift);
+  touch-action: pinch-zoom;                         /* swipes belong to the script here; the drawer's own list still scrolls (below) */
+}
+/* portrait phones: the larger view is nearly the full screen width and height (script sets --ar to fill the height),
+   with the drawer open, so the speaker keeps its size and the drawer has room */
+@media (max-width: 600px) and (orientation: portrait) {
+  .spk-frame.is-expanded { --w: 94vw; --ar: 1.3333; }
+}
+.spk-frame.is-flying { z-index: var(--spk-z-frame); }
+/* size-dependent values must not tween while the frame resizes */
+.spk-frame.is-flying .spk-stage,
+.spk-frame.is-flying .spk-drawer,
+.spk-frame.is-flying .spk-badge { transition: none; }
+
+.spk-expand {
+  position: absolute;
+  right: var(--pad-x);
+  bottom: calc(100% + var(--tab-h) - var(--exp) + 1px);   /* rides the drawer, level with the tab */
+  width: var(--exp);
+  height: var(--exp);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--spk-control);
+  color: var(--spk-ink-soft);
+  cursor: pointer;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+.spk-expand:hover { background: var(--spk-control-hover); }
+.spk-expand:focus-visible { outline: 2px solid var(--spk-accent); outline-offset: 2px; }
+.spk-expand svg { display: block; width: 14px; height: 14px; }
+
+/* Pointer devices: the button only appears while the frame is hovered (or focused),
+   to keep the resting frame clean. Touch devices can't hover, so it stays visible. */
+@media (hover: hover) and (pointer: fine) {
+  .spk-expand { opacity: 0; }
+  .spk-frame:hover .spk-expand,
+  .spk-expand:focus-visible,
+  .spk-frame.is-expanded .spk-expand { opacity: 1; }
+}
+.spk-expand .spk-i-in,
+.spk-frame.is-expanded .spk-expand .spk-i-out { display: none; }
+.spk-frame.is-expanded .spk-expand .spk-i-in { display: block; }
+
+
+/* ==========================================================================
+   4. Speaker artwork
+   ========================================================================== */
+
+/* buttons */
+.spk-btn { cursor: pointer; outline: none; }
+.spk-btn .spk-cap {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 300ms ease, fill 300ms ease, stroke 300ms ease;
+}
+.spk-btn.is-down .spk-cap { transform: scale(.9); fill: rgb(255 255 255 / .16); }
+.spk-btn:focus-visible .spk-cap { stroke: var(--spk-accent); stroke-width: 6px; }
+.spk-hit { fill: transparent; stroke: none; }       /* generous invisible touch target */
+
+/* press targets: soft blue circles over each button */
+.spk-ptgt { pointer-events: none; }
+.spk-ptgt ellipse {
+  fill-opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill-opacity 500ms ease, transform 500ms ease;
+}
+.spk-ptgt.is-hint ellipse { animation: spk-hint 1.8s ease-in-out infinite; }
+.spk-ptgt.is-held ellipse { fill-opacity: .6; transform: scale(.81); animation: none; transition-duration: 300ms; }
+.spk-ptgt.is-flash ellipse { animation: spk-flash 1.3s ease-out; }
+@keyframes spk-hint  { 0%, 100% { fill-opacity: .1; } 50% { fill-opacity: .4; } }
+@keyframes spk-flash { 0% { fill-opacity: 0; } 20% { fill-opacity: .6; } 100% { fill-opacity: 0; } }
+
+/* LED: the script drives opacity; this is the pairing pulse */
+#spk-on, #spk-on1 ellipse { opacity: 0; }           /* nothing lit before the script runs */
+.spk-led-pulse { animation: spk-led-pulse 1s ease-in-out infinite; }
+@keyframes spk-led-pulse { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+/* pairing: speaker zooms up, phone slides in, confirmation card pops */
+#spk-speaker {
+  transform: matrix(0.301334, 0, 0, 0.401779, 43.999441, -2676.825141);
+  transition: transform var(--spk-travel);
+}
+.spk-frame.is-phone-up #spk-speaker { transform: matrix(0.453751, 0, 0, 0.605003, 51.037446, -4161.579285); }
+
+#spk-phone-container {
+  transform: matrix(13.740362, 0, 0, 18.558424, 291.112352, 533.184258);   /* parked below the frame */
+  transition: transform var(--spk-travel);
+}
+.spk-frame.is-phone-up #spk-phone-container { transform: matrix(13.740362, 0, 0, 18.558424, 291.112352, 68.184258); }
+/* square frame: the artwork sits mid-frame with spare room below it, so park the phone further down */
+.spk-slot.is-small #spk-phone-container { transform: matrix(13.740362, 0, 0, 18.558424, 291.112352, 700); }
+.spk-slot.is-small .spk-frame.is-phone-up #spk-phone-container { transform: matrix(13.740362, 0, 0, 18.558424, 291.112352, 68.184258); }
+/* portrait phones' larger view has no fixed ratio, so the phone fades in and out instead of being parked off-frame.
+   It starts hidden in every state (inline and larger), so expanding never flashes it; only pairing shows it. */
+@media (max-width: 600px) and (orientation: portrait) {
+  #spk-phone-container { opacity: 0; transition: transform var(--spk-travel), opacity 300ms ease 400ms; }   /* leaving: slides away first, then fades */
+  .spk-frame.is-phone-up #spk-phone-container { opacity: 1; transition: transform var(--spk-travel), opacity 250ms ease; }
+
+  /* the phone waits just off the right edge, at the height it will sit at, so it slides in sideways (a short trip)
+     instead of rising from below. The x offsets (+240 / +410 over its 291.11 resting x) clear the frame at each stage scale. */
+  .spk-slot .spk-frame:not(.is-phone-up) #spk-phone-container { transform: matrix(13.740362, 0, 0, 18.558424, 531.112352, 68.184258); }
+  .spk-slot .spk-frame.is-open:not(.is-phone-up) #spk-phone-container { transform: matrix(10.99229, 0, 0, 14.846739, 531.112352, 113.184258); }
+  .spk-slot .spk-frame:not(.is-expanded).is-open:not(.is-phone-up) #spk-phone-container { transform: matrix(10.99229, 0, 0, 14.846739, 701.112352, 113.184258); }   /* inline + open: the stage is scaled down */
+}
+
+/* Pairing with the drawer open: the stage is scaled down to clear the drawer, so
+   skip the speaker zoom (it would run past the artwork's right edge and be cropped),
+   and use a smaller phone, set lower so it clears the top of the frame. */
+.spk-frame.is-open.is-phone-up #spk-speaker { transform: matrix(0.301334, 0, 0, 0.401779, 43.999441, -2676.825141); }
+.spk-frame.is-open.is-phone-up #spk-phone-container { transform: matrix(10.99229, 0, 0, 14.846739, 291.112352, 113.184258); }
+
+#spk-card {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(.7);
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+.spk-frame.is-card-on #spk-card { opacity: 1; transform: none; }
+
+/* press circles vanish at once, so none is left floating where the speaker was while it moves */
+.spk-frame.is-phone-up .spk-ptgt ellipse,
+.spk-frame.is-linking .spk-ptgt ellipse { fill-opacity: 0; animation: none; transition: none; }
+
+/* link: a second speaker slides in below, the pair stacks */
+#spk-speaker2 { pointer-events: none; opacity: 0; transition: transform var(--spk-travel), opacity 400ms ease; }
+.spk-frame.is-linking #spk-speaker2 { opacity: 1; }
+
+/* notes: the original artwork's three-note rise, once per phrase (timings from the 12s walkthrough, rescaled) */
+#spk-notes { pointer-events: none; transform: scale(.6); opacity: .5; }
+#spk-note-1, #spk-note-2, #spk-note-3 { opacity: 0; }
+#spk-notes.is-rising #spk-note-1 { animation: spk-note-1 1.12s ease-in-out both; }
+#spk-notes.is-rising #spk-note-2 { animation: spk-note-2 1.12s ease-in-out .32s both; }
+#spk-notes.is-rising #spk-note-3 { animation: spk-note-3 1.12s ease-in-out .64s both; }
+
+@keyframes spk-note-1 {
+  0%     { opacity: 0; transform: matrix(0.099541, -0.014361, 0.010238, 0.126158, -247.916681, -498.120155); }
+  14.26% { opacity: 1; transform: matrix(0.165902, -0.023934, 0.017063, 0.210263, -641.511245, -1023.202359); animation-timing-function: linear; }
+  42.87% { opacity: 1; transform: matrix(0.165902, -0.023934, 0.017063, 0.210263, -646.599825, -1095.083956); animation-timing-function: linear; }
+  71.38% { opacity: 1; transform: matrix(0.165902, -0.023934, 0.017063, 0.210263, -640.321564, -1136.943989); animation-timing-function: linear; }
+  100%   { opacity: 0; transform: matrix(0.165902, -0.023934, 0.017063, 0.210263, -637.809455, -1153.688003); }
+}
+@keyframes spk-note-2 {
+  0%     { opacity: 0; transform: matrix(0.103683, -0.034027, 0.025029, 0.135579, -378.042513, -446.421883); }
+  14.35% { opacity: 1; transform: matrix(0.172806, -0.056712, 0.041714, 0.225966, -853.502864, -945.913401); animation-timing-function: linear; }
+  40.47% { opacity: 1; transform: matrix(0.172806, -0.056712, 0.041714, 0.225966, -828.386804, -987.77444); animation-timing-function: linear; }
+  66.7%  { opacity: 1; transform: matrix(0.172806, -0.056712, 0.041714, 0.225966, -803.270743, -1029.634474); animation-timing-function: linear; }
+  85.65% { opacity: 1; transform: matrix(0.172806, -0.056712, 0.041714, 0.225966, -800.13111, -1067.308001); animation-timing-function: linear; }
+  100%   { opacity: 0; transform: matrix(0.172806, -0.056712, 0.041714, 0.225966, -798.875055, -1082.377613); }
+}
+@keyframes spk-note-3 {
+  0%     { opacity: 0; transform: matrix(0.099541, -0.014361, 0.010238, 0.126158, -247.916681, -498.120155); }
+  14.26% { opacity: 1; transform: matrix(0.165902, -0.023934, 0.017063, 0.210263, -641.511245, -1023.202359); animation-timing-function: linear; }
+  57.13% { opacity: 1; transform: matrix(0.180106, -0.025983, 0.018523, 0.228266, -727.16028, -1152.903598); animation-timing-function: linear; }
+  85.74% { opacity: 1; transform: matrix(0.19431, -0.028032, 0.019984, 0.246268, -812.809315, -1282.603832); animation-timing-function: linear; }
+  100%   { opacity: 0; transform: matrix(0.201385, -0.029053, 0.020712, 0.255235, -855.473441, -1347.211065); }
+}
+
+
+/* ==========================================================================
+   5. Feedback badge
+   One round badge, top right: a ring (hold progress, volume level, spinner)
+   around one of several icons chosen with data-icon / data-ring.
+   ========================================================================== */
+
+.spk-badge {
+  position: absolute;
+  top: calc(var(--w) * .025);
+  right: calc(var(--w) * .025);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--badge);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--spk-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  border: .5px solid var(--spk-line);
+  box-shadow: inset 0 1px 0 var(--spk-glass-edge);
+  transition: background-color 300ms ease, border-color 300ms ease;
+  pointer-events: none;
+}
+.spk-badge svg { grid-area: 1 / 1; overflow: visible; }
+.spk-dial { width: 100%; height: 100%; }              /* the ring's svg fills the badge; icons size themselves (.spk-ico) */
+
+.spk-ring {
+  fill: none;
+  stroke: var(--spk-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 0 100;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  opacity: 0;
+  transition: stroke-dasharray 160ms ease, opacity 350ms ease;
+}
+.spk-badge[data-ring="hold"] .spk-ring  { opacity: 1; stroke-dasharray: 100 100; transition: stroke-dasharray 550ms linear, opacity 120ms; }
+.spk-badge[data-ring="level"] .spk-ring { opacity: 1; }
+.spk-badge[data-ring="spin"] .spk-ring  { opacity: 1; stroke-dasharray: 30 70; animation: spk-spin 1.1s linear infinite; transition: stroke-dasharray 450ms ease; }
+@keyframes spk-spin { to { transform: rotate(270deg); } }
+
+/* icons: stacked in one cell, crossfaded by data-icon */
+.spk-ico {
+  grid-area: 1 / 1;
+  width: 48%;
+  height: 48%;
+  fill: none;
+  stroke: var(--spk-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(.85);
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+.spk-badge[data-icon="hand"]  .spk-i-hand,
+.spk-badge[data-icon="eq"]    .spk-i-eq,
+.spk-badge[data-icon="power"] .spk-i-power,
+.spk-badge[data-icon="bt"]    .spk-i-bt,
+.spk-badge[data-icon="check"] .spk-i-check,
+.spk-badge[data-icon="vol"]   .spk-i-vol,
+.spk-badge[data-icon="link"]  .spk-i-link { opacity: 1; transform: none; }
+
+/* one screen-pixel weight for every line icon, at any badge size */
+.spk-i-vol path, .spk-i-bt path, .spk-i-check path, .spk-i-link circle {
+  vector-effect: non-scaling-stroke;
+  stroke-width: calc(var(--badge) * .48 / 24 * 2);
+}
+
+.spk-i-hand { width: 52%; height: 52%; }
+.spk-i-hand path { stroke: none; fill: var(--spk-ink-faint); }
+.spk-i-hand path + path { fill: var(--spk-accent); }
+
+/* power state is written out ("ON" / "OFF") rather than drawn as a power symbol, which read as a button */
+.spk-i-power text {
+  font: 800 9.5px/1 var(--font-sans);
+  letter-spacing: .04em;
+  text-anchor: middle;
+  stroke: none;
+  transition: opacity 250ms ease;
+}
+.spk-i-power .spk-on-label  { fill: var(--spk-on); }
+.spk-i-power .spk-off-label { fill: var(--spk-icon-off); opacity: 0; }
+.spk-badge[data-off] .spk-i-power .spk-on-label  { opacity: 0; }
+.spk-badge[data-off] .spk-i-power .spk-off-label { opacity: 1; }
+
+/* volume: no wave lines when muted, more as it gets louder */
+.spk-i-vol .spk-w1, .spk-i-vol .spk-w2, .spk-i-vol .spk-w3 { opacity: 0; transition: opacity 200ms; }
+.spk-i-vol:not([data-n="0"]) .spk-w1,
+.spk-i-vol[data-n="2"] .spk-w2,
+.spk-i-vol[data-n="3"] .spk-w2,
+.spk-i-vol[data-n="3"] .spk-w3 { opacity: 1; }
+
+/* equalizer while music plays; non-scaling stroke keeps the rounded ends the same size as the bars stretch */
+.spk-i-eq line {
+  stroke: var(--spk-accent);
+  stroke-width: calc(var(--badge) * .48 * .14);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: .6;
+  animation: spk-eq 900ms ease-in-out infinite alternate;
+}
+.spk-i-eq .spk-b2 { animation-duration: 1000ms; animation-delay: -300ms; }
+.spk-i-eq .spk-b1 { animation-duration: 780ms; }
+.spk-i-eq .spk-b3 { animation-duration: 880ms; animation-delay: -550ms; }
+@keyframes spk-eq { 0% { transform: scaleY(.3); } 100% { transform: scaleY(1); } }
+
+/* screen-reader announcements */
+.spk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   6. Drawer
+   Closed, only a strip shows (header + caption). Open, it lists every action
+   with the gesture on the speaker and the keyboard shortcut.
+   ========================================================================== */
+
+.spk-drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--pad-top) var(--pad-x) var(--pad-bottom);
+  background: var(--spk-surface);
+  border-top: 1px solid var(--spk-line);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -6px 20px rgb(0 0 0 / .05);
+  transform: translateY(calc(100% - var(--tab)));
+  transition: transform 420ms var(--spk-ease);
+}
+.spk-frame.is-peek .spk-drawer { transform: translateY(calc(100% - var(--tab) - 22px)); }   /* idle hint: nudges up */
+.spk-frame.is-open .spk-drawer { transform: translateY(0); }
+
+.spk-tab {
+  position: absolute;
+  left: 50%;
+  top: 0;                                            /* sits over the drawer's top border: no line between them */
+  transform: translate(-50%, -100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: var(--tab-h);
+  padding: 0;
+  background: var(--spk-surface);
+  border: 1px solid var(--spk-line);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  font: 600 16px/1 var(--font-sans);
+  color: var(--spk-ink-soft);
+  cursor: pointer;
+}
+.spk-tab:focus-visible { outline: 2px solid var(--spk-accent); outline-offset: 2px; }
+.spk-tab span { display: block; transition: transform 300ms; }
+.spk-frame.is-open .spk-tab span { transform: rotate(45deg); }
+
+/* Small view: about half the frame, so the speaker stays visible; the rows
+   scroll under a pinned header and fade out at the bottom edge. */
+.spk-drawer-body {
+  max-height: calc(var(--w) * var(--ar) * (.42 + .58 * var(--u)) - 70px * var(--u));
+  padding-bottom: calc(14px * (1 - var(--u)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;                               /* the list scrolls even though the larger view takes other swipes */
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 18px * (1 - var(--u))), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 18px * (1 - var(--u))), transparent);
+}
+
+.spk-frame:not(.is-open) .spk-drawer-body { overflow: hidden; }   /* closed: the strip is not a scroll area, so wheel and touch go to the page */
+
+/* header: title, power caption, one-line instructions */
+.spk-dhead,
+.spk-how { position: sticky; z-index: 1; background: var(--spk-surface); }
+.spk-dhead {
+  top: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: var(--head-lh);                       /* follows the smooth value, so the glyph-size snap doesn't move the box */
+}
+.spk-drawer h3 {
+  margin: 0 0 calc(var(--head-gap) - 2px);
+  font-size: var(--fs-head);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--spk-ink-soft);
+}
+.spk-caption {
+  font-size: var(--fs-head);
+  color: var(--spk-ink);
+  white-space: nowrap;
+  min-width: 0;                                      /* very narrow frames: the caption ends in an ellipsis instead of being cut off */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.spk-caption.is-shown { opacity: 1; }
+.spk-caption.is-bump { animation: spk-bump 600ms ease; }
+.spk-snd { width: 1.05em; height: 1.05em; margin-right: .4em; vertical-align: -.15em; }
+@keyframes spk-bump {
+  0%, 100% { transform: none; color: var(--spk-ink-soft); }
+  30% { transform: translateX(3px); color: var(--spk-ink); }
+  60% { transform: translateX(-2px); }
+}
+
+.spk-how {
+  top: var(--head-lh);
+  margin: -2px 0 0;
+  padding-bottom: calc(var(--head-gap) + 6px);
+  font-size: 11.5px;
+  color: var(--spk-ink-faint);
+  transition: opacity 250ms ease;
+}
+.spk-frame:not(.is-open):not(.is-peek) .spk-how { opacity: 0; }  /* hidden in the closed strip (centred on the header); shown while the idle peek nudges the drawer up */
+.spk-how .spk-touch { display: none; }
+
+/* two columns of actions */
+.spk-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(calc(var(--w) * .32), auto));
+  justify-content: space-between;
+  gap: 0 clamp(10px, calc(var(--w) * .05), 22px);
+}
+.spk-cols h4 {
+  margin: var(--sec-gap) 0 calc(var(--row-y) + 1px);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--spk-ink-faint);
+}
+.spk-cols h4:first-child { margin-top: 0; }
+.spk-cols ul { margin: 0; padding: 0; list-style: none; }
+.spk-cols button {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: var(--row-y) 6px;
+  border-radius: 6px;
+  font-size: clamp(9px, calc(var(--w) * .028), 11.5px);
+  white-space: nowrap;
+  color: var(--spk-ink);
+  cursor: pointer;
+}
+.spk-cols button:hover { background: var(--spk-surface-hover); }
+.spk-cols button:focus-visible { outline: 2px solid var(--spk-accent); }
+
+/* gesture glyph: one dot = tap, two = double, three = triple, pill = hold. Right-aligned to the label. */
+.spk-g { display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px; width: 22px; flex: none; }
+.spk-g i { width: 5px; height: 5px; border-radius: 50%; background: var(--spk-ink-soft); opacity: .3; }
+.spk-g--hold i { width: 19px; border-radius: 4px; }
+
+/* keyboard shortcut keycaps: equal squares, Space as wide as its word */
+.spk-kbd {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0;
+  font: 500 10px/1 var(--font-sans);
+  color: var(--spk-ink-faint);
+  border: 1px solid var(--spk-line-strong);
+  border-radius: 4px;
+  opacity: .6;
+}
+.spk-kbd--wide { width: auto; padding: 0 7px; }
+.spk-kbd svg { display: block; margin: 0 auto; }
+
+/* touch devices: shortcuts and their copy are desktop-only */
+@media (hover: none), (pointer: coarse) {
+  .spk-kbd, .spk-how .spk-desk { display: none; }
+  .spk-how .spk-touch { display: inline; }
+}
+
+
+/* ==========================================================================
+   7. Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .spk-stage, .spk-drawer, #spk-speaker, #spk-speaker2, #spk-phone-container, #spk-card, .spk-ico, .spk-ring { transition: none; }
+  .spk-ptgt ellipse, .spk-caption.is-bump, .spk-led-pulse, .spk-badge[data-ring="spin"] .spk-ring,
+  #spk-notes.is-rising #spk-note-1, #spk-notes.is-rising #spk-note-2, #spk-notes.is-rising #spk-note-3 { animation: none !important; }
+  .spk-i-eq line { animation: none; transform: scaleY(.7); }
+}

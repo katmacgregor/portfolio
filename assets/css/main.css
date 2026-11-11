@@ -1,0 +1,1193 @@
+/* Fonts, self-hosted (Latin only).
+   Mulish: one variable file, weights 400-800.
+   Fraunces: one variable file (weight axis only; opsz, SOFT and WONK pinned), declared once per weight the site
+   uses. A weight in between (e.g. 600) snaps to the next heavier face, as it did when this came from Google Fonts. */
+@font-face {
+  font-family: "Mulish";
+  src: url("../fonts/Mulish-Variable.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face { font-family: "Fraunces"; src: url("../fonts/Fraunces-Variable.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("../fonts/Fraunces-Variable.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("../fonts/Fraunces-Variable.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+
+:root {
+  --color-coral: #E46F6A;
+  --color-yellow: #E6B34A;
+  --color-green: #4FAF7B;
+  --color-blue: #5AAEC9;
+  --color-dark-blue: #5977D9;
+
+  --light-default: #fdfbfb;
+  --dark-default: #1a1a1a;
+
+  --text-primary: var(--dark-default);
+  --text-secondary: #555555;
+  --text-muted: #8a8a8a;
+  --text-color-invert: var(--light-default);
+  --text-link-accent: var(--color-blue);
+  --border: #ececec;
+  --border-strong: #d8d8d0;
+  --bg-placeholder: #f2f2f2;
+  --media-bg: var(--bg-placeholder);
+  --font-sans: "Mulish", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", "Mulish", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --page-max: 900px;
+  --measure: 640px;
+  --page-bg: var(--light-default);
+  --nav-bg: rgba(255, 255, 255, 0.45);
+
+  /* the dim and blur behind any overlay (doodles lightbox, speaker larger view) */
+  --overlay-bg: rgb(0 0 0 / 0.45);
+  --overlay-blur: 6px;
+}
+@media (hover: none), (pointer: coarse) {
+  :root { --overlay-blur: 0px; }            /* backdrop blur can stutter on phones: keep just the dim */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #fcfcfc;
+    --text-secondary: #c0c0c0;
+    --text-muted: #7b7979;
+    --text-color-invert: var(--dark-default);
+    --page-bg: var(--dark-default);
+    --nav-bg: rgba(26, 26, 26, 0.6);
+    --border: #333;
+    --bg-placeholder: #212424;
+    --overlay-bg: rgb(0 0 0 / 0.75);
+  }
+}
+
+/* Touch screens have no blur to soften the page behind an overlay, so the dim is darker to compensate.
+   After the dark-mode block so each scheme gets its own darker value. */
+@media (hover: none), (pointer: coarse) {
+  :root { --overlay-bg: rgb(0 0 0 / 0.65); }
+}
+@media ((hover: none) or (pointer: coarse)) and (prefers-color-scheme: dark) {
+  :root { --overlay-bg: rgb(0 0 0 / 0.82); }
+}
+
+.rotator {
+  transition: color 250ms;
+}
+
+#rotator-next {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--text-primary);
+  border-radius: 50px;
+  position: absolute;
+  right: 0;
+  opacity: 0;
+  transition: opacity 250ms;
+  padding: 0;
+  margin-bottom: 16px;
+}
+#rotator-next svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.word-border {
+  width: 100%;
+  height: 3px;
+  position: relative;
+  background-color: var(--border-strong);
+}
+.word-border:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  max-width: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--color-blue);
+  transition: max-width 250ms, background-color 250ms;
+}
+.rotator:hover .word-border:before {
+  max-width: 320px;
+}
+.hero__rotator:hover #rotator-next, .hero__rotator:focus-within #rotator-next {
+  opacity: 1;
+}
+
+.rotator:hover {
+  color: var(--color-blue);
+  transition: color 250ms;
+}
+[data-word="solve"].rotator:hover {
+  color: var(--color-coral);
+}
+[data-word="solve"].rotator ::selection,
+[data-word="solve"].rotator .word-border:before {
+  background: var(--color-coral);
+}
+[data-word="craft"].rotator:hover {
+  color: var(--color-yellow);
+}
+[data-word="craft"].rotator ::selection,
+[data-word="craft"].rotator .word-border:before {
+  background: var(--color-yellow);
+}
+[data-word="design"].rotator:hover {
+  color: var(--color-green);
+}
+[data-word="design"].rotator ::selection,
+[data-word="design"].rotator .word-border:before {
+  background: var(--color-green);
+}
+[data-word="doodle"].rotator:hover {
+  color: var(--color-dark-blue);
+}
+[data-word="doodle"].rotator ::selection,
+[data-word="doodle"].rotator .word-border:before {
+  background: var(--color-dark-blue);
+}
+
+* { box-sizing: border-box; }
+
+::selection {
+  background: var(--text-primary);
+  color: var(--text-color-invert);
+}
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: hidden; }
+
+/* Page transitions (cross-document view transitions; unsupported browsers just navigate).
+   The old page stays solid underneath while the new one fades in on top, so there is never a
+   moment where neither covers the background. Normal blending avoids the default additive
+   (plus-lighter) mix, which brightens when the two opacities don't sum to 1. */
+@view-transition {
+  navigation: auto;
+}
+@keyframes vt-in { from { opacity: 0; } }
+::view-transition-old(root),
+::view-transition-new(root) { mix-blend-mode: normal; }
+::view-transition-old(root) { animation: none; }
+::view-transition-new(root) { animation: vt-in 220ms ease-out both; }
+/* the arriving nav (named in partials.js) is solid from the first frame, no fade */
+::view-transition-group(site-nav),
+::view-transition-new(site-nav) { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
+/* Portkey launch — toggled on <html> by the hero rotator's click handler
+   right before navigating to craft.html, so leaving the page feels like
+   the portkey activating rather than a plain link click. The matching
+   arrival animation lives in craft.css. */
+@property --reveal {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes portkey-close {
+  from { --reveal: 175%; }
+  to   { --reveal: 0%; }
+}
+html.portkey-launch::view-transition {
+  background: #140c06;
+}
+html.portkey-launch::view-transition-old(root) {
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 calc(var(--reveal) - 42%), transparent var(--reveal));
+          mask-image: radial-gradient(ellipse at 50% 50%, #000 calc(var(--reveal) - 42%), transparent var(--reveal));
+  animation: portkey-close 0.55s cubic-bezier(0.6, 0, 0.8, 0.5) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.portkey-launch::view-transition-old(root) { animation: none !important; }
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  background: var(--page-bg);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+body > site-footer {
+  flex-shrink: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 250ms;
+}
+a:hover {
+  color: var(--text-primary);
+}
+
+a:focus-visible,
+button:focus-visible,
+a:focus-visible .work-list__title {
+  outline: none;
+  background: var(--color-blue);
+  color: var(--text-color-invert);
+  border-radius: 2px;
+}
+
+a.link-border {
+  position: relative;
+}
+
+a.link-border:after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1.5px;
+  opacity: 0;
+  background-color: var(--border-strong);
+  transform: translateY(3px) scaleX(.5);
+  transition: opacity 50ms 0.1s, transform 0.25s;
+}
+
+a.link-border:hover:after {
+  opacity: 1;
+  transform: translateY(1px) scaleX(1);
+  transition: opacity 25ms, transform 0.25s;
+}
+
+a.link-accent {
+  color: var(--text-link-accent);
+}
+a.link-accent.link-border:after {
+  background-color: var(--text-link-accent);
+}
+
+img, video { max-width: 100%; height: auto; display: block; }
+
+img {
+  /* Prevents dragging of the image itself */
+  -webkit-user-drag: none;
+  user-drag: none;
+
+  /* Prevents highlighting/selecting the image */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE10+ */
+  user-select: none;         /* Standard */
+}
+
+.wrap-width {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 26px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 26px;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  font-size: 13px;
+}
+
+.nav__logo { font-weight: 600; font-family: var(--font-display); color: var(--text-secondary); }
+.nav__links { display: flex; gap: 12px; color: var(--text-secondary); text-align:center; }
+
+/* The site-wide a:hover bold would otherwise reflow every link to its
+   right on hover. Fixed widths, roughly sized to fit each label at its
+   bold weight, keep the row stable — nudge these if any label's bold
+   state overflows its box in your fonts. */
+.nav__links a {
+  display: inline-block;
+  white-space: nowrap;
+}
+.nav__links a:nth-child(1) { width: 40px; }
+.nav__links a:nth-child(2) { width: 58px; }
+.nav__links a:nth-child(3) { width: 46px; }
+.nav__links a:nth-child(4) { width: 62px; }
+
+.nav-mini-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  border-bottom: 0.5px solid var(--border);
+  z-index: 100;
+  transform: translateY(-100%);
+  transition: transform 0.25s ease;
+}
+.nav-mini-bar.is-visible { transform: translateY(0); }
+.nav-mini-bar .nav { padding: 14px 26px; }
+
+.hero { padding-top: 72px; padding-bottom: 20px; }
+
+@media screen and (min-width: 600px) {
+  .hero {
+    padding-bottom: 80px;
+  }
+}
+
+.hero__greeting { font-family: var(--font-sans); font-weight: 500; font-size: 22px; color: var(--text-secondary); margin: 0 0 8px; }
+
+.heading-lg {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(40px, 9vw, 96px);
+  line-height: 1.02;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.hero__rotator {
+  position: relative;
+}
+.hero__rotator button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0 0 6px;
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  vertical-align: baseline;
+  transition: border-color 0.3s ease;
+  flex-direction: column;
+}
+
+/* .hero__rotator button and the global button:focus-visible rule are
+   equal specificity (one class + one element each), so this button's
+   own background/color were silently winning on source order and
+   swallowing the focus-visible highlight entirely. Scoped one level
+   further so it actually wins. */
+.hero__rotator button:focus-visible {
+  outline: none;
+  background: var(--color-blue);
+  color: var(--text-color-invert);
+  border-radius: 2px;
+}
+
+/* Tiny custom cursor per rotating word — reinforces the word's meaning
+   rather than decorating it. This is a real DOM element positioned via
+   JS (see #word-cursor below), not the native `cursor:` CSS property —
+   native custom cursors get rasterized by the OS compositor and go
+   blocky on high-DPI displays no matter the source resolution. A DOM
+   element paints through the normal page compositor instead, so it
+   stays exactly as crisp as any other SVG on the page. */
+.word-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  color: var(--text-primary);
+}
+.word-cursor.is-visible { opacity: 1; }
+.word-cursor svg { display: block; width: 100%; height: 100%; }
+
+.rotator-stage {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  vertical-align: bottom;
+  /* width transition is toggled on/off in JS so it can animate from an
+     explicit start width to an explicit end width each time the word
+     changes. */
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+  padding-bottom: 14px;
+}
+
+.rotator-letters { display: inline-block; white-space: nowrap; }
+
+.rotator-ghost {
+  /* The outgoing word: pinned (not stretched) so it keeps its own
+     natural width, stacked above the incoming word. Its individual
+     letters push straight up and out, staggered — no fade, a hard
+     per-letter vertical crossover. */
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rl-char {
+  display: inline-block;
+  transform: translateY(0);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#rotator-tail {
+  display: inline-block;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #rotator-tail { transition: none; }
+  .rotator-stage, .rl-char { transition: none !important; }
+}
+
+.heading { font-size: 22px; letter-spacing: 0.01em; font-weight: 500; }
+.heading--muted { color: var(--text-muted); }
+h2 { margin-bottom: 4px; }
+h2 p { margin: 0; }
+h2 + p { margin-top: 0; margin-bottom: 30px; text-transform: uppercase; color: var(--text-muted); font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+
+.section-intro { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0 0 40px; }
+
+section { padding: 40px 0; }
+
+.text-emphasize p { font-size: 14px; line-height: 1.75; margin: 0 0 26px; color: var(--text-primary); }
+.text-emphasize p:first-child { font-size: 18px; }
+
+.cols { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 30px; }
+.cols .col { flex: 1; display: flex; flex-direction: column; }
+@media (max-width: 640px) {
+  .cols {
+    flex-direction: column;
+  }
+  .col {
+    width: 100%;
+    text-align: center;
+  }
+  .highlight-image { margin: 0 auto; }
+  .col + .col { margin-top: 24px; }
+}
+
+
+.highlights {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 20px auto 40px;
+}
+.highlights h4 {
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+.highlights .year {
+  font-size: 0.7em;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: inline-block;
+}
+.highlights .col h5 {
+  font-size: 0.9em;
+  margin: 0 0 -5px;
+}
+.highlights a {
+  font-size: 0.8em;
+  margin-bottom: 4px;
+}
+
+.highlight-image {
+  border-radius: 50%;
+  background-color: var(--bg-placeholder);
+  width: clamp(150px, 20vw, 186px);
+  height: clamp(150px, 20vw, 186px);
+  margin-bottom: 22px;
+}
+.highlight-image img { display: block; width: 100%; height: 100%; }
+
+.gallery-entry { display: flex; gap: 32px; align-items: center; margin-bottom: 48px; }
+.gallery-entry__wide .gallery-entry__media { margin-bottom: 20px; }
+.gallery-entry__media { flex: 1; aspect-ratio: 4/3; background: var(--bg-placeholder); border-radius: 10px; overflow: hidden; }
+.gallery-entry__media img, .gallery-entry__media video { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.gallery-entry__media + .gallery-entry__footnote {  margin-top: -12px; }
+.gallery-entry__footnote { margin: 10px 0 20px; font-size: 10px; color: var(--text-muted); text-align: right; font-style: italic; }
+
+/* Apple/Beats section: original abstract icon work standing in for
+   product photography and process imagery that's under NDA. Each is a
+   simple monoline illustration (not a depiction of any real product)
+   sized to fill the .gallery-entry__media box it sits in. */
+.gallery-media-icon { width: 100%; height: 100%; display: block; color: var(--text-secondary); }
+
+/* Beeps & boops: waveform bars + LED dots, gently pulsing. Gated by
+   .svg-anim-gate (see partials.js) so it only animates in view. */
+.gallery-media-icon .wave-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: wave-bar-pulse 2.4s ease-in-out infinite;
+}
+@keyframes wave-bar-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.55); }
+}
+.gallery-media-icon .led-dot {
+  animation: led-blink 2.4s ease-in-out infinite;
+}
+@keyframes led-blink {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}
+
+/* Award badge slot on case study pages, placeholder circle until the
+   right badge/year is confirmed per project. */
+.awards {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 24px;
+  /* Inside a .work-entry row, this is a flex sibling of the text block,
+     so it needs align-self (not align-items) to opt out of that row's
+     own centering and sit at the top instead. Has no effect when
+     .awards isn't inside a flex container (e.g. Disney Junior). */
+  align-self: flex-start;
+  padding-top: 12px;
+}
+.award-badge {
+  --size: 100px;
+  width: var(--size); height: var(--size); border-radius: 50%; background: var(--bg-placeholder); flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  /* .work-entry stacks to a column here, so align-self would otherwise
+     control horizontal position instead of vertical. Reset it so the
+     badges stay centered like every other stacked block on mobile. */
+  .awards { align-self: auto; padding-top: 0; }
+}
+.gallery-entry__text { flex: 1; }
+.subhead, .work-list__title { color: var(--text-primary); font-size: initial; font-weight: 600; }
+.subhead { margin: 0 0 8px; }
+.gallery-entry__text h4 { font-size: 14px; color: var(--text-muted) }
+.gallery-entry__text p { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; }
+.gallery-entry__proof { font-size: 12px; color: var(--accent-apple); }
+.gallery-entry--reverse, .work-entry--reverse { flex-direction: row-reverse; }
+
+.gallery-beat p { font-size: 15px; line-height: 1.75; color: var(--text-primary); margin: 0 0 22px; }
+.gallery-close {
+  font-size: 15px; line-height: 1.75; color: var(--text-secondary);
+  border-top: 0.5px solid var(--border); padding-top: 28px; margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .gallery-entry, .gallery-entry--reverse,
+  .work-entry, .work-entry--reverse { flex-direction: column; }
+}
+
+/* Same alternating media/text idea as .gallery-entry, sized for the
+   longer-form body copy on individual case study pages instead of
+   short gallery blurbs. */
+.work-entry { display: flex; gap: 32px; align-items: center; margin: 40px 0; }
+.work-entry__media { flex: 1; min-width: 0; width: 100%; }
+.work-entry__media img, .work-entry__media video, .work-entry__media {
+  aspect-ratio: 4/3; object-fit: cover; object-position: top; display: block;
+}
+.work-entry__text { flex: 1; min-width: 0; }
+.work-entry__text p { font-size: 17px; line-height: 1.75; margin: 0; color: var(--text-primary); }
+
+/* Transparent PNG/WebP assets (illustrations, sprite sheets) shouldn't
+   get the dark photo-placeholder background, it shows through the
+   transparent areas and looks like a mistake. */
+.work-entry__media.work-entry__media--transparent img,
+.work-media.work-media--transparent {
+  background: none;
+}
+.work-entry__text--compact p { font-size: 14px; line-height: 1.7; margin: 0 0 8px; color: var(--text-secondary); }
+
+/* For a pillarboxed phone-capture video used inside a .work-entry,
+   same portrait crop as .work-media--phone but sized to fill its
+   flex column instead of being centered at a fixed max-width. */
+.work-entry__media--portrait video { aspect-ratio: 9/16; object-position: center; max-width: 320px; margin: 0 auto; }
+
+/* For a .work-entry that holds a custom animated illustration (SVG),
+   diagram, or wireframe instead of a photo/video, sized to its own
+   container instead of the fixed 4/3 crop used for img/video. */
+.work-entry__media--stage {
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.work-entry__media--stage svg { display: block; width: 100%; height: auto; }
+.work-entry__media.work-entry__media--stage img {
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: none;
+  width: auto;
+  max-width: 100%;
+  max-height: 480px;
+}
+
+/* Star Wars page: notch/flair callout animation dashes fade in one at
+   a time, and the two example groups fade in as a whole once their
+   dashes finish drawing. Reduced-motion users get the end state with
+   no animation (see the inline script's guard). */
+.starwars-flair-demo .dash {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+.starwars-flair-demo #notch-example,
+.starwars-flair-demo #flair-example,
+.starwars-flair-demo #flair-highlight {
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .starwars-flair-demo .dash,
+  .starwars-flair-demo #notch-example,
+  .starwars-flair-demo #flair-example,
+  .starwars-flair-demo #flair-highlight {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+.work-list { border-top: 1px solid var(--border); }
+.work-list__row {
+  display: flex; align-items: baseline; gap: 18px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 32px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+.work-list__title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.work-list__title:focus-visible {
+  color: var(--text-color-invert);
+}
+.work-list__chevron {
+  align-self: center;
+  flex-shrink: 0;
+  width: 14px; height: 14px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.work-list__chevron svg { display: block; width: 100%; height: 100%; }
+.work-list__row:hover .work-list__chevron {
+  color: var(--text-primary);
+  transform: translateX(3px);
+}
+
+/* hovering a row dims its siblings and nudges the title in step with the chevron;
+   opacity and transform only, and pointer devices only */
+.work-list__row { transition: opacity 0.2s ease; }
+.work-list__title-group { transition: transform 0.2s ease; }
+@media (hover: hover) {
+  .work-list:has(.work-list__row:hover) .work-list__row:not(:hover) { opacity: 0.45; }
+  .work-list__row:hover .work-list__title-group { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-list__row, .work-list__title-group { transition: none; }
+  .work-list__row:hover .work-list__title-group { transform: none; }
+}
+
+.about, .contact {
+  text-align: center;
+}
+
+.about {
+  margin-top: 40px;
+}
+.about p { font-size: 15px; margin: 0 0 6px; }
+@media (max-width: 640px) {
+  .about p {
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.about .about-accent { font-family: var(--font-display); font-weight: 600; }
+
+.contact { display: flex; align-items: center; gap: 6px; font-size: 14px; justify-content: center; }
+.contact__pin { font-size: 15px; transition: transform 250ms; }
+.contact:hover .contact__pin { transform: rotate(64deg);  }
+
+footer.site-footer {
+  padding-top: 90px;
+  padding-bottom: 50px;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px 24px;
+}
+.site-footer .nav__links { gap: 22px; justify-self: end; }
+.site-footer .copyright { justify-self: start; }
+
+.footer-top {
+  justify-self: center;
+  display: inline-flex;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+.footer-top:hover {
+  color: var(--color-blue);
+  transform: translateY(-2px);
+}
+.footer-top svg { display: block; width: 16px; height: 16px; }
+
+@media (max-width: 640px) {
+  footer.site-footer {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .site-footer .nav__links,
+  .site-footer .copyright,
+  .footer-top {
+    justify-self: center;
+  }
+  .footer-top { order: -1; }
+}
+
+.work-header, .extra-header { padding-top: 20px; }
+.work-header__back, .extra-header__back { font-size: 12px; color: var(--text-muted); display: inline-block; margin-bottom: 24px; }
+.work-header h1 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.01em; font-size: 34px; margin: 0 0 6px; }
+/* heading letters rise in from below, staggered like the hero rotator (letters built in partials.js) */
+html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
+.rise-clip { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.14em; }
+.rise-char {
+  display: inline-block;
+  animation: rise-in 450ms cubic-bezier(0.16, 1, 0.3, 1) calc(200ms + var(--i) * 30ms) backwards;
+}
+@keyframes rise-in { from { transform: translateY(100%); } }
+.work-header__meta { font-size: 13px; color: var(--text-muted); margin: 0 0 28px; }
+
+.work-banner {
+  display: block;
+  width: 100%;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+  height: clamp(280px, 42vw, 640px);
+  background: var(--media-bg);
+  margin-bottom: 40px;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* Image banners sit in a frame tinted with the image's main color, and the image fades in over it
+   (is-loaded is added by partials.js), so a slow load doesn't pop in against the page background. */
+.work-banner-frame {
+  max-width: 1500px;
+  margin: 0 auto 40px;
+  aspect-ratio: var(--banner-ratio);
+  background: var(--banner-bg);
+}
+.work-banner-frame > .work-banner { margin: 0; max-width: none; background: none; }
+.work-banner-frame > img.work-banner { opacity: 0; transition: opacity 1s ease; }
+.work-banner-frame > img.work-banner.is-loaded { opacity: 1; }
+/* a banner made of several layers (image + inline SVG) is revealed by fading a tinted cover away,
+   so no layer changes opacity underneath. partials.js adds is-loaded once the images have decoded. */
+.work-banner-fade, .work-banner-frame--svg { position: relative; background: var(--banner-bg); }
+.work-banner-fade::after,
+.work-banner-frame--svg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--banner-bg);
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+.work-banner-fade.is-loaded::after,
+.work-banner-frame--svg.is-loaded::after { opacity: 0; }
+@media (scripting: none), (prefers-reduced-motion: reduce) {
+  .work-banner-frame > img.work-banner { opacity: 1; transition: none; }
+  .work-banner-fade::after, .work-banner-frame--svg::after { display: none; }
+}
+
+/* The default height clamp assumes a roughly 4:3-to-8:5 banner crop.
+   For a much wider/shorter banner image, forcing that same height
+   range zooms in and crops away most of the image. Size the box to
+   the image's own intrinsic ratio instead (from its width/height
+   attributes) so it displays uncropped, whatever that ratio is. */
+.work-banner--wide {
+  height: auto;
+}
+
+/* Shared by any inline <svg> work banner that animates (Disney Junior's
+   day/night sky, Creative Technology's looping logo mark, etc). Same
+   wide-banner sizing as an image (height:auto driven by its own ratio),
+   but as an inline <svg> we set that ratio explicitly rather than
+   relying on viewBox inference. Paused state (added by partials.js,
+   based on scroll visibility and prefers-reduced-motion) freezes both
+   CSS keyframe animations and native SMIL ones share this one class. */
+.svg-anim-gate {
+  aspect-ratio: 1400 / 360;
+}
+.svg-anim-gate.is-paused,
+.svg-anim-gate.is-paused * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .svg-anim-gate, .svg-anim-gate * {
+    animation: none !important;
+  }
+}
+
+/*.work-body p { font-size: 17px; line-height: 1.75; margin: 0 auto 24px; color: var(--text-primary); }*/
+
+.work-body .takeaways { margin-top: 70px; }
+.work-body .takeaways + p:last-of-type { margin-bottom: 70px; }
+.takeaways-strong { font-weight: 600; color: var(--text-primary); }
+
+/* Shared placeholder look for every media tile on case study/extra
+   pages, an img/video box with a dark background and rounded corners
+   while the asset itself loads or if its aspect ratio leaves gaps.
+   Each variant below only sets what actually differs: aspect ratio,
+   object-fit/position, and its own margin. */
+.work-entry__media img, .work-entry__media video,
+.work-media,
+.work-media--phone,
+.work-media--pair > img, .work-media--pair > video {
+  background: var(--media-bg);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.work-media { margin: 32px 0; object-fit: fill; object-position: top; }
+.work-media .skip-aspect-ratio, .work-entry__media .skip-aspect-ratio, .work-media--pair .skip-aspect-ratio {
+  object-fit: cover; aspect-ratio: auto;
+}
+.work-media .media-ratio-16x9, .work-entry__media .media-ratio-16x9, .work-media--pair .media-ratio-16x9 {
+  object-fit: cover; aspect-ratio: 16/9;
+}
+
+/* Videos that hold on their last frame before looping (see
+   data-loop-hold in partials.js) fade through the dark media
+   placeholder background behind them on restart, instead of
+   snapping straight back to frame one. */
+.loop-hold-fade { transition: opacity 0.4s ease; }
+.loop-hold-fade.is-fading { opacity: 0; }
+
+/* For screen recordings that are actually a portrait phone capture
+   pillarboxed inside a wider landscape frame (black bars baked into
+   the video's own pixels, not added by CSS). Cropping to the content's
+   real aspect ratio with object-fit: cover pushes the bars entirely
+   outside the visible frame instead of just shrinking them. */
+.work-media--phone {
+  aspect-ratio: 9/16;
+  max-width: 320px;
+  margin: 32px auto;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+.work-media--pair { display: flex; gap: 12px; margin: 32px 0; }
+.work-media--pair > img, .work-media--pair > video { flex: 1; min-width: 0; aspect-ratio: 4/3; object-fit: fill; object-position: top; }
+
+.extra-header h1 { font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.01em; font-size: 34px; margin: 0 0 10px; }
+.extra-header p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin: 0 0 32px; }
+
+.extra-body img { border-radius: 8px; margin: 0 0 20px; }
+
+/* Pinterest-style masonry for the Doodles page, built on CSS Grid
+   rather than column-count: plain CSS columns can't let a single item
+   span more than one column, and .draw-wide-2 below needs that. Each
+   item keeps its own natural aspect ratio (no object-fit crop); its
+   row-span is computed in partials.js from its own rendered height,
+   since Grid has no native "masonry" row-packing yet. grid-auto-rows
+   is a small fixed unit for that math, with row-gap at 0 and the
+   visual vertical gap coming from each item's own margin-bottom
+   instead (see sizeMasonryItems in partials.js). */
+.draw-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: dense;
+  column-gap: 14px;
+  row-gap: 0;
+  grid-auto-rows: 1px;
+  position: relative;                       /* anchors the hover expand button (partials.js) */
+}
+.draw-grid img, .draw-grid video, .draw-grid > a {
+  width: 100%; height: auto; display: block;
+  align-self: start;
+  border-radius: 8px; margin: 0 0 14px;
+}
+.draw-wide-2 { grid-column: span 2; }
+
+@media (max-width: 900px) {
+  .draw-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .draw-grid { grid-template-columns: repeat(2, 1fr); column-gap: 10px; }
+}
+@media (max-width: 480px) {
+  .draw-grid { grid-template-columns: 1fr; }
+  .draw-grid .draw-wide-2 { grid-column: span 1; }
+}
+
+/* Easter egg wrapper: the Hogwarts travel-poster doodle is secretly a
+   link to the real Harry Potter Halloween decor on the craft page.
+   The anchor (not the video) is the actual masonry grid item here, so
+   its margin resets on the nested video to avoid doubling up. */
+.draw-grid a.portkey-link {
+  cursor: pointer;
+}
+.draw-grid a.portkey-link video {
+  margin: 0;
+  transition: transform 0.3s ease;
+}
+.draw-grid a.portkey-link:hover video {
+  transform: scale(1.015);
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw-grid a.portkey-link:hover video { transform: none; }
+}
+
+/* Doodles page: click any illustration to see it full-size. The lightbox is
+   built once by partials.js and appended to <body>; this just styles it.
+   Excludes the portkey-link video, which already has its own click behavior
+   (navigating to the craft page). */
+.draw-grid .lightbox-trigger {
+  cursor: pointer;
+}
+
+/* Small square icon buttons shared by the lightbox (close, previous, next)
+   and the hover expand button on each illustration. Light box, dark icon, so
+   they read over both photos and the dimmed backdrop. */
+.doodle-ctrl {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.88);
+  color: var(--dark-default);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.doodle-ctrl:hover { background: #fff; }
+.doodle-ctrl:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+.doodle-ctrl svg { display: block; width: 16px; height: 16px; }
+
+/* hover expand button: one element, moved onto the illustration under the pointer */
+.doodle-expand {
+  position: absolute;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  opacity: 0;
+  pointer-events: none;
+}
+.doodle-expand.is-visible { opacity: 1; pointer-events: auto; }
+.doodle-expand svg { width: 14px; height: 14px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 84px;                         /* side room for the previous / next buttons */
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.32s;     /* stays visible until the shrink-back lands */
+  touch-action: pinch-zoom;                   /* pinch to zoom still works; the page can't scroll underneath */
+  overscroll-behavior: contain;
+  z-index: 2000;
+}
+.lightbox.is-open {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s;
+}
+
+/* Only the backdrop and the buttons fade; the image itself stays fully opaque so it lands on
+   its thumbnail without dissolving first. */
+.lightbox::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-bg);
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+  backdrop-filter: blur(var(--overlay-blur));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.lightbox.is-open::before { opacity: 1; }
+.lightbox .doodle-ctrl { opacity: 0; }
+.lightbox.is-open .doodle-ctrl { opacity: 1; }
+
+/* The image box is sized from the illustration's own ratio (--ratio, set by partials.js), so the
+   thumbnail and the full-size file stack at exactly the same size and the swap doesn't jump. */
+.lightbox__content {
+  position: relative;
+  width: min(100%, calc((100vh - 96px) * var(--ratio, 1)));
+  width: min(100%, calc((100dvh - 96px) * var(--ratio, 1)));
+  aspect-ratio: var(--ratio, 1);
+  transform-origin: 0 0;                      /* the grow / shrink animation scales from the top-left */
+}
+.lightbox__content img, .lightbox__content video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 0;
+  border-radius: 8px;
+}
+.lightbox__full { opacity: 0; transition: opacity 0.3s ease; }   /* fades in over the thumbnail once decoded */
+.lightbox__full.is-loaded { opacity: 1; }
+
+.lightbox__close { position: absolute; top: 20px; right: 24px; }
+/* same translucent treatment as the speaker's collapse button */
+.lightbox__close.doodle-ctrl {
+  background: rgb(255 255 255 / 0.12);
+  color: rgb(255 255 255 / 0.85);
+  box-shadow: none;
+}
+.lightbox__close.doodle-ctrl:hover { background: rgb(255 255 255 / 0.2); }
+
+/* previous / next: round; stepping loops around the set */
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+.lightbox__nav--prev { left: 24px; }
+.lightbox__nav--next { right: 24px; }
+
+@media (hover: none), (pointer: coarse) {
+  .lightbox { padding: 48px 20px; }
+  .lightbox__nav { display: none; }           /* touch: swipe left / right to step, down to close */
+}
+body.lightbox-locked { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .lightbox, .lightbox::before, .doodle-ctrl { transition: none; }
+}
+
+.work-next:after {
+  content: "\2192"; /* Outputs: → */
+}
+.work-prev:before {
+  content: "\2190"; /* Outputs: ← */
+}
+.work-next {
+  display: flex; align-items: baseline; justify-content: flex-end; gap: 8px;
+  padding-top: 40px; padding-bottom: 26px;
+  border-top: 0.5px solid var(--border); margin-top: 36px; font-size: 14px; color: var(--text-secondary);
+}
+.work-next__index { font-size: 12px; color: var(--text-muted); }
+
+/* For case studies that aren't first in the sequence: a previous link
+   alongside next, sharing one top-bordered row instead of two. */
+.work-pagination {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  padding-top: 40px; padding-bottom: 26px;
+  border-top: 0.5px solid var(--border); margin-top: 36px;
+  font-size: 14px; color: var(--text-secondary);
+}
+.work-prev, .work-pagination .work-next {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 0; border-top: none; margin-top: 0;
+}
+
+/* SCROLL REVEAL — items fade up once as they enter the viewport (partials.js adds is-visible).
+   Gated on has-js so nothing stays hidden if scripting is off. Items that enter together are
+   staggered via --reveal-i, set per batch in partials.js. */
+html.has-js :is(.work-media, .work-media--pair, .gallery-entry, .work-entry, .extra-body img, .extra-body video) {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+}
+html.has-js :is(.work-media, .work-media--pair, .gallery-entry, .work-entry, .extra-body img, .extra-body video).is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* index page: these use an animation (not a transition) so their own hover opacity, e.g. the
+   work-list dimming, still works once revealed */
+@keyframes reveal-up { from { opacity: 0; transform: translateY(14px); } }
+html.has-js :is(.text-emphasize p, section > .heading, section > h2, section > h2 + p, .hero__greeting, .hero__rotator, .error-404 > *, .section-intro, .highlights .col, .work-list__row, .about p, .contact) { opacity: 0; }
+html.has-js :is(.text-emphasize p, section > .heading, section > h2, section > h2 + p, .hero__greeting, .hero__rotator, .error-404 > *, .section-intro, .highlights .col, .work-list__row, .about p, .contact).is-visible {
+  opacity: 1;
+  animation: reveal-up 600ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--reveal-i, 0) * 70ms) backwards;
+}
+
+/* lazy images fade in once loaded instead of popping in (not on craft, which has its own) */
+html.has-js body:not(.craft-page) img[loading="lazy"] { opacity: 0; transition: opacity 400ms ease; }
+html.has-js body:not(.craft-page) img[loading="lazy"].img-loaded { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.has-js :is(.work-media, .work-media--pair, .gallery-entry, .work-entry, .extra-body img, .extra-body video),
+  html.has-js :is(.text-emphasize p, section > .heading, section > h2, section > h2 + p, .hero__greeting, .hero__rotator, .error-404 > *, .section-intro, .highlights .col, .work-list__row, .about p, .contact),
+  html.has-js body:not(.craft-page) img[loading="lazy"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+}
+
+.error-404 { position: relative; padding-top: 96px; padding-bottom: 140px; }
+
+.error-404__message {
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: var(--measure);
+  color: var(--text-secondary);
+  margin: 24px 0 40px;
+}
+
+.error-404__message a {
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-strong);
+  transition: border-color 0.3s ease;
+}
+.error-404__message a:hover { color: var(--text-secondary) }
+
+.error-404__slippers {
+  width: clamp(200px, 40vw, 450px);
+  margin: 0 auto;
+}
+
+@media screen and (min-width: 600px) {
+  .error-404__slippers {
+    position: absolute;
+    bottom: 10%;
+    right: 0;
+  }
+}
+
+.skip-padding {
+  padding: 0;
+}
+
+.flex-wide {
+  flex: 2;
+}
