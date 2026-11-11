@@ -1,10 +1,10 @@
-// Home page hero: the rotating word (design / solve / code / ...) and its custom cursor.
+// Home page hero: the rotating word (design / ship / code / ...) and its custom cursor.
   var words = [
     { word: "design", target: "#work" },
-    { word: "solve", target: "#how-i-think" },
+    { word: "ship", target: "#ship" },
     { word: "code", target: "work/mux.html" },
     { word: "doodle", target: "doodles.html" },
-    { word: "ship", target: "#ship" },
+    { word: "solve", target: "#how-i-think" },
     { word: "craft", target: "craft.html" }
   ];
   var i = 0;
