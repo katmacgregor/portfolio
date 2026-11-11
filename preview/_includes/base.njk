@@ -7,9 +7,10 @@
     scripts      (optional) extra scripts after partials.js, e.g. [{ "src": "assets/js/x.js", "defer": true }]
     preload      (optional) extra images to preload, e.g. ["assets/images/hp/parchment-bg.webp"]
     bodyClass / bodyAttrs   (optional) added to <body>
+    absoluteRoot (optional) true makes asset and nav links start with "/" instead of "../". Only for 404.html: GitHub serves it at any URL depth.
   Paths are written from the site root; {{ root }} turns them into "../" form for pages in work/.
 -#}
-{%- set root = page.url | relroot -%}
+{%- set root = ("/" if absoluteRoot else (page.url | relroot)) -%}
 <!doctype html>
 <html lang="en">
 <head>

@@ -1,5 +1,5 @@
 {#- Top navigation: the full bar plus the compact bar that slides in when scrolling up (behaviour in assets/js/partials.js). -#}
-{%- set root = page.url | relroot -%}
+{%- set root = ("/" if absoluteRoot else (page.url | relroot)) -%}
 {%- set links -%}
 <a class="nav__logo" href="{{ root }}index.html">Katrina MacGregor</a><div class="nav__links"><a class="link-border" href="{{ root }}index.html#work">Work</a><a class="link-border" href="{{ root }}index.html#contact">Contact</a><a class="link-border" href="{{ root }}assets/KMacGregor_resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a></div>
 {%- endset -%}
