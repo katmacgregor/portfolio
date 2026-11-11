@@ -1,0 +1,625 @@
+/* ---- animation states ---- */
+/* A linear multi-stage story that plays once per loop and holds its
+   final state — see the JS at the bottom. Elements sit at base (hidden)
+   styles with no animation-name until `svg.svg-anim-gate:not(.is-paused)`
+   is added to the SVG root; that attaches every animation-name at once
+   and each one runs on its own delay/duration from there. */
+
+/* Whole-canvas fade for the loop reset, mirroring the video
+   loop-hold-fade pattern in main.css (.loop-hold-fade/.is-fading): the
+   JS fades #proto-loop out via .is-fading before resetting the
+   per-element animation state underneath, so the cut back to stage 1
+   reads as a fade rather than an instant snap. */
+#proto-loop { transition: opacity 0.4s ease; }
+#proto-loop.is-fading { opacity: 0; }
+
+#lightbulb {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+svg.svg-anim-gate:not(.is-paused) #lightbulb {
+  /* One-shot scale-pop entrance (overshoots via the back-ease, settles at 1), then lightbulbFadeOut stacks after it for stage 3. */
+  animation:
+    popIn 310ms cubic-bezier(0.34, 1.56, 0.64, 1) 340ms forwards,
+    lightbulbFadeOut 120ms ease-in-out 2500ms forwards;
+}
+
+@keyframes lightbulbFadeOut {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8); }
+}
+
+/* --- 1.1 -> 1.2: the pulse "draws in" ---
+   The bulb and the white heart-outline filament are static from the first frame (it reads as already lit).
+   Only the heartbeat line animates, drawing left to right with a stroke-dasharray/dashoffset technique (the
+   same as the wires in 5.1). Stickies begin when this draw is about 70% done. */
+#pulse-line {
+  --len: 414.76px;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+}
+svg.svg-anim-gate:not(.is-paused) #pulse-line {
+  animation: drawStandard 370ms ease-out 740ms forwards;
+}
+
+/* --- 2: stickies arrive ---
+   Delays are assigned by id (1-5), not DOM order. Each sticky fades in while travelling ~20px toward the bulb,
+   then does a quick overshoot-and-squash landing. --dx/--dy (set per sticky below) carry each sticky's travel
+   direction (bulb centre minus the sticky's centre, as a 20px unit vector), so one shared keyframe set covers
+   all five and only transform/opacity animate. */
+
+#_1, #_2, #_3, #_4, #_5 {
+  opacity: 0;
+  stroke-opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+/* Each sticky's base fill lives on the wrapper, not inline on its -bg child: an inline fill would block the
+   wrapper's animated fill (storyboardPlaceholderFill, toCanvas, toBoard) from reaching the shape. */
+/* a hairline stroke fattens the thin handwriting on stickies 1 and 4 just enough to hold up when the animation scales down */
+.hand path { stroke: #353535; stroke-width: 0.45px; stroke-linejoin: round; }
+
+#_2 { fill: #5aaec9; }
+#_3 { fill: #4faf7b; }
+#_5 { fill: #4faf7b; }
+
+/* Each of _1.._5 wraps a background shape (#_N-bg) and its content so the sticky moves and fades as one unit.
+   stroke-opacity is set here on the wrapper (not inline on -bg) so moveToStoryboard's 0 -> 1 border reveal
+   on #_2/#_3/#_5 can inherit down to the shape. */
+
+svg.svg-anim-gate:not(.is-paused) #_1 {
+  animation:
+    stickyIn 400ms ease-out 1000ms forwards,
+    floatOut 350ms ease-in 2500ms forwards; /* falls first, stage 3 */
+}
+svg.svg-anim-gate:not(.is-paused) #_3 {
+  animation:
+    stickyIn 400ms ease-out 1400ms forwards,
+    moveToStoryboard 400ms ease-in-out 2870ms forwards,
+    storyboardPlaceholderFill 400ms ease-in-out 2870ms forwards,
+    fadeOutLeftover 500ms ease-in 4670ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #_4 {
+  animation:
+    stickyIn 400ms ease-out 1600ms forwards,
+    floatOut 350ms ease-in 2650ms forwards; /* starts partway through 1's fall, stage 3 */
+}
+svg.svg-anim-gate:not(.is-paused) #_5 {
+  animation:
+    stickyIn 400ms ease-out 1800ms forwards,
+    moveToStoryboard 400ms ease-in-out 2870ms forwards,
+    storyboardPlaceholderFill 400ms ease-in-out 2870ms forwards,
+    fadeOutLeftover 500ms ease-in 4670ms forwards;
+}
+
+/* --- 3: storyboard ---
+   Stickies 1 and 4 drop out (floatOut), 4 lagging 1 by 150ms so the falls overlap, while 2/3/5 move into the
+   storyboard row (moveToStoryboard). 2/3/5 gain a border as they land and ease to the placeholder fill; 2 then
+   grows into the code panel. The lightbulb's shrink-and-fade runs on the same trigger as sticky 1's fall. */
+
+#_2 { --dx3: -382.33px; --dy3: 226.293px; }
+#_3 { --dx3: -15.865px; --dy3: 94.92px; }
+#_5 { --dx3: 163.018px;  --dy3: -395.03px; }
+
+@keyframes floatOut {
+  0%   { opacity: 1; transform: translate(0, 0); }
+  100% { opacity: 0; transform: translate(0, 500px); }
+}
+
+/* moveToStoryboard's 700ms duration means the effective stroke-width
+   ramps from 0 to a full 8px alongside the position/size change — the
+   border "grows in" as the sticky lands, rather than popping in at the
+   end. Scale factor 1.31758 = 323.745/245.711 (measured from the
+   3-storyboard source geometry). */
+@keyframes moveToStoryboard {
+  0%   { transform: translate(0, 0) scale(1); stroke-opacity: 0; fill-opacity: 1; }
+  100% { transform: translate(var(--dx3), var(--dy3)) scale(1.31758); stroke-opacity: 1; fill-opacity: 0; }
+}
+
+/* #_2/#_3/#_5 stay as solid placeholder boxes through the storyboard stage: this stacks after moveToStoryboard
+   on the same timing, pinning fill-opacity at 1 while that animation drives transform and stroke. The target gray
+   is hardcoded to --bg-placeholder's light value because nothing else in this illustration follows dark mode.
+   #_2 carries the placeholder fill into toCanvas, so it reads as one panel darkening into the code editor. */
+@keyframes storyboardPlaceholderFill {
+  0%   { fill-opacity: 1; }
+  100% { fill-opacity: 1; fill: #f2f2f2; }
+}
+
+/* --- 4.1: blank canvas ---
+   Only sticky 2 continues. 3 and 5 (and the storyboard count/copy) fade out, and 2 grows non-uniformly (the
+   target is a wide canvas, not a square) from the placeholder gray into the solid #555 code panel. */
+svg.svg-anim-gate:not(.is-paused) #_2 {
+  animation:
+    stickyIn 400ms ease-out 1200ms forwards,
+    moveToStoryboard 400ms ease-in-out 2870ms forwards,
+    storyboardPlaceholderFill 400ms ease-in-out 2870ms forwards,
+    toCanvas 480ms ease-in-out 4670ms forwards,
+    toBoard 550ms ease-in-out 6690ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+/* #_2-content (the earbud icon) rides along with #_2's transforms, but toCanvas scales non-uniformly and would
+   stretch it. #_2-content-unstretch is a wrapper that carries the reciprocal scale so the icon keeps its
+   proportions; it fades out over the same window as toCanvas. */
+svg.svg-anim-gate:not(.is-paused) #_2-content {
+  animation: fadeOutLeftover 600ms ease-in-out 4670ms forwards;
+}
+#_2-content-unstretch { transform-box: fill-box; transform-origin: center; }
+svg.svg-anim-gate:not(.is-paused) #_2-content-unstretch {
+  animation: unstretchToCanvas 480ms ease-in-out 4670ms forwards;
+}
+/* Reciprocals of toCanvas's own 0%/100% scale values (1/1.31758 and
+   1/4.37859, 1/2.96068). Only exact at those two endpoints — a linear
+   ease-in-out counter-curve isn't a true inverse of toCanvas's own
+   ease-in-out mid-transition — but close enough over a fast 480ms
+   window where the icon is also simultaneously fading to transparent. */
+@keyframes unstretchToCanvas {
+  0%   { transform: scale(0.75899, 0.75899); }
+  100% { transform: scale(0.22839, 0.33776); }
+}
+/* _2 used to close the loop by shrinking/repositioning into "dot2"
+   (a rewind back to its stage-1/2 look) via toHollow/toDot2. It now
+   just fades out in place with everything else in the board group
+   instead — no more scale or reposition. */
+@keyframes toCanvas {
+  0%   { transform: translate(var(--dx3), var(--dy3)) scale(1.31758); fill: #f2f2f2; fill-opacity: 1; stroke-opacity: 1; }
+  100% { transform: translate(-382.847px, 276.294px) scale(4.37859, 2.96068); fill: #555; fill-opacity: 1; stroke-opacity: 1; }
+}
+@keyframes toBoard {
+  0%   { transform: translate(-382.847px, 276.294px) scale(4.37859, 2.96068); fill: #555; fill-opacity: 1; stroke-opacity: 1; }
+  100% { transform: translate(-382.326px, 292.227px) scale(3.63399, 1.85989); fill: #555; fill-opacity: 1; stroke-opacity: 1; }
+}
+
+/* --- 5.1: board ---
+   `board-cursor` (the board background shape, named to avoid colliding with the typing cursor) waits for the
+   panel's toBoard resize and the code's fade-out to finish before fading in, so nothing overlaps. The four
+   hole-grids then fade in right to left (by x position, not id order), and the wires draw with the
+   dasharray/dashoffset technique, in this order:
+     blue1 + red1, then red2 + blue2, then node's wire (its yellow body fades in), then led's wire1 + wire2,
+     then glow, led-bulb and the two highlights fade in.
+   wire-blue1/red1/red2 are authored top-to-bottom, so they use the negated-offset variant (drawReversed)
+   to draw bottom to top; the rest already run that way. wire-blue2 is a symmetric arc and keeps the
+   default direction. `led`'s bulb is named led-bulb to avoid colliding with the mascot bulb from 1.1. */
+
+#board-cursor { opacity: 0; }
+svg.svg-anim-gate:not(.is-paused) #board-cursor {
+  animation:
+    fadeInSimple 300ms ease-out 7240ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #code {
+  animation: fadeOutLeftover 400ms ease-in 6690ms forwards;
+}
+
+#holes, #section1, #section2, #section { opacity: 0; }
+svg.svg-anim-gate:not(.is-paused) #holes    { animation: fadeInSimple 350ms ease-out 7590ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #section1 { animation: fadeInSimple 350ms ease-out 7790ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #section2 { animation: fadeInSimple 350ms ease-out 7990ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #section  { animation: fadeInSimple 350ms ease-out 8190ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+
+/* wire draw setup: --len is set at runtime (proto-scrub.js) from getTotalLength(), not hardcoded. Any mismatch
+   with the true length, even ~0.005px, leaves a sliver of dash exposed, and the round linecap paints it as a
+   dot. Draw durations scale with path length, with a 200ms beat between each wire group. */
+#wire-blue1 { stroke-dasharray: var(--len); stroke-dashoffset: calc(-1 * var(--len)); }
+#wire-red1  { stroke-dasharray: var(--len); stroke-dashoffset: calc(-1 * var(--len)); }
+#wire-red2  { stroke-dasharray: var(--len); stroke-dashoffset: calc(-1 * var(--len)); }
+#wire-blue2 { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+#wire       { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+#wire1      { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+#wire2      { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+
+svg.svg-anim-gate:not(.is-paused) #wire-blue1 { animation: drawReversed 370ms linear 8740ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire-red1  { animation: drawReversed 220ms linear 8740ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire-red2  { animation: drawReversed 70ms linear 9310ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire-blue2 { animation: drawStandard 70ms linear 9310ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire       { animation: drawStandard 70ms linear 9580ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire1      { animation: drawStandard 80ms linear 10050ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #wire2      { animation: drawStandard 70ms linear 10050ms forwards, fadeOutLeftover 700ms ease-in 11130ms forwards; }
+
+@keyframes drawStandard {
+  from { stroke-dashoffset: var(--len); }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes drawReversed {
+  from { stroke-dashoffset: calc(-1 * var(--len)); }
+  to   { stroke-dashoffset: 0; }
+}
+
+#node-body { opacity: 0; }
+svg.svg-anim-gate:not(.is-paused) #node-body {
+  animation:
+    fadeInSimple 200ms ease-out 9650ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+
+#glow, #led-bulb, #led-highlight-circle, #led-highlight-rect { opacity: 0; }
+/* #glow gets its own transform-box: it's the one piece of the LED that
+   travels (see glowMorphToBud below), everything else here just fades. */
+#glow { transform-box: fill-box; transform-origin: center; will-change: transform, opacity; }
+svg.svg-anim-gate:not(.is-paused) #led-bulb {
+  animation:
+    fadeInSimple 250ms ease-out 10330ms forwards,
+    ledBulbLightUp 150ms ease-out 10780ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+
+/* --- 5.2 -> 1.1: closing the loop ---
+   Starts as the board group finishes fading out. led-bulb is the only element with a counterpart in 1.1: it
+   grows and moves onto the mascot bulb's position, fading its fill to 0 (matching the unlit #bulb), while
+   everything else just fades. The return itself (bubble, dots, lightbulb pop-in) is 1.1's own entrance
+   replaying when the loop script (proto-scrub.js) resets .svg-anim-gate:not(.is-paused). */
+/* --- 5.1 -> 5.2: the LED turns on ---
+   glow, led-bulb and the two highlights fade in together, then 200ms later the LED lights (glowOn,
+   ledBulbLightUp, highlightBrighten, and blink's flash). Everything is a transform of an existing element
+   except `blink` (the six sunburst rays), which is new and scales and fades in from the LED's centre.
+     - glow: recolours black -> white (an explicit base fill makes it a real transition)
+     - highlights: fill-opacity 0.4 -> 0.5
+     - led-bulb: unchanged */
+svg.svg-anim-gate:not(.is-paused) #glow {
+  /* stays a normal board element now — lights up green with the rest
+     of 5.2, then fades out with the board (see #glow-travel below for
+     how it actually reaches the bud). */
+  animation:
+    fadeInSimple 250ms ease-out 10330ms forwards,
+    glowOn 150ms ease-out 10780ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+/* #glow-travel is a duplicate of #glow's path (already green), placed as a sibling AFTER #earbud-reveal inside
+   #bud-slide, so DOM order paints it on top (z-index on SVG shapes isn't reliable). It starts at #glow's
+   position as #glow fades out and travels along glowMorphToBud, then rides #bud-slide's slide-left for free. */
+/* The #led-glow filter (see <defs>) is applied to the inner shape (#glow-travel-shape), so this wrapper only
+   handles opacity/transform. stdDeviation is in the ellipse's own pre-scale units and shrinks with the landing
+   scale and the viewBox, so 36 is needed for a visible halo, with the filter region widened to
+   -400%/900% (region padding is a % of the small bbox, so a bigger blur needs a bigger region or it clips).
+   cairosvg ignores feGaussianBlur, so tune this in a real browser. */
+#glow-travel { opacity: 0; transform-box: fill-box; transform-origin: center; will-change: transform, opacity; }
+svg.svg-anim-gate:not(.is-paused) #glow-travel {
+  animation:
+    fadeInSimple 150ms ease-out 11130ms forwards,
+    glowMorphToBud 700ms ease-in-out 11130ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #led-highlight-circle {
+  animation:
+    fadeInSimple 250ms ease-out 10330ms forwards,
+    highlightBrighten 150ms ease-out 10780ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #led-highlight-rect {
+  animation:
+    fadeInSimple 250ms ease-out 10330ms forwards,
+    highlightBrighten 150ms ease-out 10780ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+#blink {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+svg.svg-anim-gate:not(.is-paused) #blink {
+  animation:
+    blinkOn 150ms cubic-bezier(0.34, 1.56, 0.64, 1) 10780ms forwards,
+    fadeOutLeftover 700ms ease-in 11130ms forwards;
+}
+
+@keyframes glowOn {
+  from { fill: #313131; }
+  to   { fill: #4faf7b; }
+}
+/* --- 6: the reveal ---
+   glow, already green, travels onto the earbud's status LED while earbud-reveal fades in underneath, so the dot
+   lands on the earbud. The rest of the board fades out with it. */
+/* Reused by both #glow-travel (see above #glow's rule) and, in an
+   earlier pass, #glow itself — kept as one shared keyframe since the
+   translate/scale values describing the move onto the bud didn't
+   change, only which element plays it. */
+@keyframes glowMorphToBud {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(15.244px, 571.032px) scale(0.2835, 0.30855); }
+}
+
+#earbud-reveal { opacity: 0; }
+svg.svg-anim-gate:not(.is-paused) #earbud-reveal {
+  /* holds — see the note on #glow's animation above. */
+  animation: fadeInSimple 400ms ease-out 11830ms forwards;
+}
+
+/* --- 6 -> 6.2: the bud makes room, the phone arrives ---
+   After the bud settles and a short beat, the bud slides left (a translate on #bud-slide, a wrapper with no
+   transform of its own so it doesn't fight #earbud-reveal's placement matrix) while the phone card slides in from
+   the right. #glow-travel lives inside #bud-slide, so it rides along. */
+#bud-slide { will-change: transform; }
+svg.svg-anim-gate:not(.is-paused) #bud-slide {
+  animation: budSlideLeft 500ms ease-in-out 12530ms forwards;
+}
+@keyframes budSlideLeft {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-311.374px, 0); }
+}
+
+#phone-reveal { opacity: 0; will-change: transform, opacity; }
+svg.svg-anim-gate:not(.is-paused) #phone-reveal {
+  /* holds — see the note on #glow's animation above. */
+  animation:
+    fadeInSimple 150ms ease-out 12530ms forwards,
+    phoneSlideIn 600ms ease-out 12530ms forwards;
+}
+@keyframes phoneSlideIn {
+  0%   { transform: translate(650px, 0); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ledBulbLightUp {
+  from { fill: #bec5c3; }
+  to   { fill: #4faf7b; }
+}
+@keyframes highlightBrighten {
+  from { fill-opacity: 0.4; }
+  to   { fill-opacity: 0.5; }
+}
+@keyframes blinkOn {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeOutLeftover {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* cursor: fades in once canvas has landed, then blinks forever — crisp
+   on/off via steps(), not a smooth fade, to read as a real text cursor
+   rather than a pulsing UI element. */
+#cursor { opacity: 0; }
+svg.svg-anim-gate:not(.is-paused) #cursor {
+  animation:
+    fadeInSimple 300ms ease-out 5300ms forwards,
+    cursorBlink 1000ms steps(2, jump-none) 5450ms infinite,
+    cursorTypeRow1 320ms steps(8, jump-start) 5650ms forwards,
+    cursorTypeRow2 320ms steps(8, jump-start) 6060ms forwards,
+    cursorTypeRow3 320ms steps(8, jump-start) 6470ms forwards,
+    fadeOutLeftover 400ms ease-in 6690ms forwards;
+}
+
+/* The cursor types in three passes (one per row): each row is a one-shot steps(8) animation on `transform`,
+   stacked in source order. While a later pass is still in its delay the earlier end value holds; when the next
+   pass starts it jumps to its own 0%, which gives the carriage-return snap with no extra keyframe. */
+@keyframes cursorTypeRow1 {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(822.041px, 0); }
+}
+@keyframes cursorTypeRow2 {
+  from { transform: translate(0, 130px); }
+  to   { transform: translate(822.041px, 130px); }
+}
+@keyframes cursorTypeRow3 {
+  from { transform: translate(0, 260px); }
+  to   { transform: translate(822.041px, 260px); }
+}
+
+/* --- 4.1 -> 4.2: typing ---
+   Three rows of 8 glyphs, 40ms per glyph with a 120ms fade (the rows start at 5650ms, 6060ms and 6470ms), then the
+   canvas morphs into the board. cursorTypeRow1/2/3 advance the cursor in 8 steps over each row, so each jump
+   lands on that row's next character. Rows 2 and 3 reuse row 1's glyph shapes in a translate(0, Y) group. */
+#number, #number1, #number2, #number3, #number4, #number5, #number6, #number7,
+#number8, #number9, #number10, #number11, #number12, #number13, #number14, #number15,
+#number16, #number17, #number18, #number19, #number20, #number21, #number22, #number23 {
+  opacity: 0;
+}
+/* row 1 */
+svg.svg-anim-gate:not(.is-paused) #number  { animation: codeCharAppear 120ms ease-out 5650ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number1 { animation: codeCharAppear 120ms ease-out 5690ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number2 { animation: codeCharAppear 120ms ease-out 5730ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number3 { animation: codeCharAppear 120ms ease-out 5770ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number4 { animation: codeCharAppear 120ms ease-out 5810ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number5 { animation: codeCharAppear 120ms ease-out 5850ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number6 { animation: codeCharAppear 120ms ease-out 5890ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number7 { animation: codeCharAppear 120ms ease-out 5930ms forwards; }
+/* row 2 */
+svg.svg-anim-gate:not(.is-paused) #number8  { animation: codeCharAppear 120ms ease-out 6060ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number9  { animation: codeCharAppear 120ms ease-out 6100ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number10 { animation: codeCharAppear 120ms ease-out 6140ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number11 { animation: codeCharAppear 120ms ease-out 6180ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number12 { animation: codeCharAppear 120ms ease-out 6220ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number13 { animation: codeCharAppear 120ms ease-out 6260ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number14 { animation: codeCharAppear 120ms ease-out 6300ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number15 { animation: codeCharAppear 120ms ease-out 6340ms forwards; }
+/* row 3 */
+svg.svg-anim-gate:not(.is-paused) #number16 { animation: codeCharAppear 120ms ease-out 6470ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number17 { animation: codeCharAppear 120ms ease-out 6510ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number18 { animation: codeCharAppear 120ms ease-out 6550ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number19 { animation: codeCharAppear 120ms ease-out 6590ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number20 { animation: codeCharAppear 120ms ease-out 6630ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number21 { animation: codeCharAppear 120ms ease-out 6670ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number22 { animation: codeCharAppear 120ms ease-out 6710ms forwards; }
+svg.svg-anim-gate:not(.is-paused) #number23 { animation: codeCharAppear 120ms ease-out 6750ms forwards; }
+
+@keyframes codeCharAppear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cursorBlink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+#_1 { --dx: -18.0px; --dy: 8.7px; }   /* bulb is up-right of sticky 1 */
+#_2 { --dx: 17.1px;  --dy: -10.4px; } /* bulb is down-left of sticky 2 */
+#_3 { --dx: -19.4px; --dy: -4.8px; }  /* bulb is right of sticky 3 */
+#_4 { --dx: 19.9px;  --dy: -1.9px; }  /* bulb is left of sticky 4 */
+#_5 { --dx: 11.5px;  --dy: 16.4px; }  /* bulb is up-left of sticky 5 */
+
+@keyframes stickyIn {
+  0%   { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); }
+  55%  { opacity: 1; transform: translate(0, 0) scale(1.04); }   /* arrives, slight overshoot */
+  75%  { opacity: 1; transform: translate(0, 0) scaleX(1.02) scaleY(0.94); } /* squash = "press" */
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+
+/* Each storyboard column (number + copy lines) pops in together, left to right, reusing popIn, 250ms apart with a
+   350ms pop so adjacent columns overlap slightly. */
+#count-1, #copy-1, #count-2, #copy-2, #count-3, #copy-3 {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+svg.svg-anim-gate:not(.is-paused) #count-1, svg.svg-anim-gate:not(.is-paused) #copy-1 {
+  animation:
+    popIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) 3570ms forwards,
+    fadeOutLeftover 500ms ease-in 4670ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #count-2, svg.svg-anim-gate:not(.is-paused) #copy-2 {
+  animation:
+    popIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) 3820ms forwards,
+    fadeOutLeftover 500ms ease-in 4670ms forwards;
+}
+svg.svg-anim-gate:not(.is-paused) #count-3, svg.svg-anim-gate:not(.is-paused) #copy-3 {
+  animation:
+    popIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) 4070ms forwards,
+    fadeOutLeftover 500ms ease-in 4670ms forwards;
+}
+
+@keyframes fadeInSimple {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bubblePop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes undulate {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.035); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #lightbulb {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  #pulse-line { animation: none !important; stroke-dashoffset: 0 !important; }
+  #_1, #_2, #_3, #_4, #_5 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+
+/* ---- timeline scrubber: a trail of stage icons under the animation ----
+   The playhead (a bead on a dotted thread) rides along the trail as the story plays; drag it,
+   or tap a stage. Behaviour lives in the script at the bottom of index.html; a visually hidden
+   range input underneath gives keyboard and screen-reader access. */
+.gallery-entry__media-stack { flex: 1; min-width: 0; }
+
+.proto-scrub {
+  --pos: 0;                       /* 0 to 1 along the trail, set by the script */
+  --icon: 38px;
+  --r: calc(var(--icon) / 2);     /* half an icon: the first and last icons' centres sit this far in from the edges */
+  position: relative;
+  margin-top: 24px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.proto-trail {
+  position: relative;
+  cursor: pointer;
+  touch-action: pan-y;            /* sideways drags scrub; vertical drags still scroll the page */
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 10px;
+}
+.proto-scrub:has(.proto-range:focus-visible) .proto-trail { outline: 2px solid var(--color-blue); outline-offset: 4px; }
+
+/* the thread behind the icons: dotted, with a blue stretch behind the playhead. The playhead runs icon to icon. */
+.proto-line, .proto-line::after {
+  position: absolute;
+  left: var(--r); right: var(--r); /* from the Ideate icon's centre to the Ship icon's centre */
+  top: calc(var(--icon) / 2 - 1px);
+  height: 2px;
+  background-repeat: repeat-x;
+  background-size: 8px 2px;
+  pointer-events: none;
+}
+.proto-line { background-image: radial-gradient(circle, var(--text-muted) 0.9px, transparent 1.3px); opacity: .55; }
+.proto-line::after {
+  content: "";
+  left: 0; right: auto;
+  top: 0;
+  width: calc(var(--pos) * 100%);
+  background-image: radial-gradient(circle, var(--color-blue) 1.1px, transparent 1.5px);
+}
+.proto-head {
+  position: absolute;
+  top: calc(var(--icon) / 2 - 5px);
+  left: calc(var(--r) + (100% - var(--r) * 2) * var(--pos));
+  width: 10px; height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  box-shadow: 0 0 0 4px rgb(90 174 201 / .22);
+  pointer-events: none;
+}
+
+.proto-stops {
+  position: relative;             /* above the thread and the bead, so the icons stay readable as the bead passes behind them */
+  height: calc(var(--icon) + 22px);
+  margin: 0; padding: 0;
+  list-style: none;
+}
+.proto-stop {                     /* icon k sits k quarters along the trail: the playhead is on it as stage k begins (Ship: as the animation ends) */
+  position: absolute;
+  top: 0;
+  left: calc(var(--r) + (100% - var(--r) * 2) * var(--k) / 4);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.proto-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: var(--icon); height: var(--icon);
+  border-radius: 50%;
+  background: var(--page-bg);
+  border: 1.5px solid var(--border-strong);
+  transition: color 250ms ease, border-color 250ms ease, background-color 250ms ease, transform 250ms ease;
+}
+.proto-icon { width: 20px; height: 20px; display: block; }
+.proto-label { font-size: 11px; line-height: 1.2; text-align: center; transition: color 250ms ease; }
+
+.proto-stop.is-done .proto-icon-wrap { color: var(--color-blue); border-color: rgb(90 174 201 / .5); }
+.proto-stop.is-active .proto-icon-wrap { color: var(--color-blue); border-color: var(--color-blue); transform: scale(1.08); }
+.proto-stop.is-active .proto-label { color: var(--text-primary); font-weight: 600; }
+@media (hover: hover) and (pointer: fine) {
+  .proto-stop:hover .proto-icon-wrap { border-color: var(--color-blue); }
+}
+
+/* hidden but focusable: the keyboard / screen-reader control */
+.proto-range {
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 1px; height: 1px;
+  margin: 0; padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* nothing to scrub without script, or when motion is reduced (the animation shows its final frame instead) */
+html:not(.has-js) .proto-scrub { display: none; }
+@media (prefers-reduced-motion: reduce) { .proto-scrub { display: none; } }
+@media (max-width: 480px) {
+  .proto-scrub { --icon: 34px; }
+  .proto-label { font-size: 10px; }
+}

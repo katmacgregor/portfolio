@@ -1,0 +1,573 @@
+// The nav and footer are plain HTML, rendered at build time from _includes/nav.njk and footer.njk.
+// This only adds their behaviour: the compact nav bar slides in when scrolling up, and the footer
+// arrow scrolls back to the top.
+document.addEventListener('DOMContentLoaded', function () {
+  var bar = document.getElementById('mini-nav');
+  if (bar) {
+    var lastY = window.scrollY;
+    var threshold = 140;
+    var ticking = false;
+
+    function onScroll() {
+      var currentY = window.scrollY;
+      if (currentY < threshold) {
+        bar.classList.remove('is-visible');
+      } else if (currentY < lastY) {
+        bar.classList.add('is-visible');
+      } else if (currentY > lastY) {
+        bar.classList.remove('is-visible');
+      }
+      lastY = currentY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
+  var toTop = document.querySelector('.footer-top');
+  if (toTop) {
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Videos only play while actually in view, and pause otherwise.
+  var videos = document.querySelectorAll('video');
+  if (videos.length && 'IntersectionObserver' in window) {
+    var videoObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var v = entry.target;
+        if (entry.isIntersecting) {
+          // A video with a loop-hold delay (see below) sits at its last
+          // frame between loops instead of looping natively, so it can
+          // report as "ended" here. Restart it from the top rather than
+          // calling play() on a video parked at its own duration, which
+          // most browsers just no-op.
+          if (v.ended) v.currentTime = 0;
+          v.play().catch(function () {});
+        } else {
+          v.pause();
+        }
+      });
+    }, { threshold: 0.25 });
+    videos.forEach(function (v) { videoObserver.observe(v); });
+  }
+
+  // Videos with data-loop-hold hold on their final frame for that many
+  // milliseconds before looping, instead of cutting straight back to
+  // frame one. Only restarts if the video is still on screen; if the
+  // hold elapses while scrolled away, the observer above resumes it
+  // (from frame one, per the v.ended check) next time it's back in view.
+  // The restart itself fades out (through the dark media placeholder
+  // background behind it), seeks, then fades back in, rather than
+  // snapping straight to frame one.
+  var holdVideos = document.querySelectorAll('video[data-loop-hold]');
+  holdVideos.forEach(function (v) {
+    v.removeAttribute('loop');
+    v.classList.add('loop-hold-fade');
+    v.addEventListener('ended', function () {
+      var hold = parseInt(v.dataset.loopHold, 10) || 0;
+      setTimeout(function () {
+        var rect = v.getBoundingClientRect();
+        var inView = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (!inView) return;
+        v.classList.add('is-fading');
+        setTimeout(function () {
+          v.currentTime = 0;
+          v.play().catch(function () {});
+          v.classList.remove('is-fading');
+        }, 400);
+      }, hold);
+    });
+  });
+
+  // Fade/rise for content as it scrolls into view. Items entering in the same batch are staggered.
+  var revealEls = document.querySelectorAll('.work-media, .work-media--pair, .gallery-entry, .work-entry, .extra-body img, .extra-body video, ' +
+    '.text-emphasize p, section > .heading, section > h2, section > h2 + p, .hero__greeting, .hero__rotator, .error-404 > *, .section-intro, .highlights .col, .work-list__row, .about p, .contact');
+  if (revealEls.length && 'IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      var k = 0;
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.style.setProperty('--reveal-i', Math.min(k++, 5));
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  // Lazy images fade in once loaded (CSS hides them until img-loaded; craft handles its own).
+  document.querySelectorAll('img[loading="lazy"]').forEach(function (img) {
+    function show() { img.classList.add('img-loaded'); }
+    if (img.complete) show();
+    else { img.addEventListener('load', show); img.addEventListener('error', show); }
+  });
+
+  // Inline <svg> work banners that animate (Disney Junior's day/night
+  // sky, Creative Technology's looping logo mark, etc) only run while
+  // scrolled into view, and stay paused for prefers-reduced-motion.
+  // Handles both CSS keyframe animations (via the .is-paused class,
+  // which main.css turns into animation-play-state: paused) and native
+  // SMIL animations (via the SVG root's own pauseAnimations/
+  // unpauseAnimations methods), since a given banner may use either or
+  // both.
+  var animatedSvgs = document.querySelectorAll('svg.svg-anim-gate');
+  if (animatedSvgs.length) {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    animatedSvgs.forEach(function (svg) {
+      if (reduceMotion) {
+        // CSS already disables the keyframe animations; pause any native
+        // SMIL animations too so nothing moves for reduced-motion users.
+        if (typeof svg.pauseAnimations === 'function') svg.pauseAnimations();
+        return;
+      }
+      if (!('IntersectionObserver' in window)) return;
+      var svgObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            svg.classList.remove('is-paused');
+            if (typeof svg.unpauseAnimations === 'function') svg.unpauseAnimations();
+          } else {
+            svg.classList.add('is-paused');
+            if (typeof svg.pauseAnimations === 'function') svg.pauseAnimations();
+          }
+        });
+      }, { threshold: 0.2 });
+      svgObserver.observe(svg);
+    });
+  }
+
+  // Masonry row-spans for the Doodles page. .draw-grid is a real CSS
+  // Grid (see main.css) so an item can span multiple columns, but Grid
+  // has no native masonry row-packing: each item's grid-row-end has to
+  // be set explicitly, sized to its own rendered height, or items would
+  // all sit on one shared row height instead of tiling like Pinterest.
+  // Recomputed on resize since narrower columns make taller renders.
+  var drawGrid = document.querySelector('.draw-grid');
+  if (drawGrid) {
+    var MASONRY_ROW_UNIT = 1; // px; matches grid-auto-rows in main.css
+    var MASONRY_ROW_GAP = 14; // px; matches each item's margin-bottom
+    var MASONRY_SETTLE_MS = 260;
+    var masonryReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Re-span every item to its rendered height. With `settle`, items that moved are then
+    // eased from where they were last drawn to their new spot (FLIP, transform only), so a
+    // column-count change glides instead of jumping. `_pos` is each item's last layout
+    // position, relative to the grid.
+    function sizeMasonryItems(settle) {
+      var items = [].filter.call(drawGrid.children, function (el) {
+        return !el.classList.contains('doodle-expand');   // the hover button isn't a grid item
+      });
+
+      // where each item is on screen right now, including any settle still in flight
+      var before = items.map(function (el) {
+        var m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+        return el._pos ? { x: el._pos.x + m.e, y: el._pos.y + m.f } : null;
+      });
+      items.forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
+
+      items.forEach(function (el) {
+        el.style.gridRowEnd = 'span ' + Math.ceil((el.offsetHeight + MASONRY_ROW_GAP) / MASONRY_ROW_UNIT);
+      });
+
+      var g = drawGrid.getBoundingClientRect();
+      items.forEach(function (el, i) {
+        var r = el.getBoundingClientRect();
+        var now = { x: r.left - g.left, y: r.top - g.top };
+        el._pos = now;
+        var from = before[i];
+        if (settle === true && from && !masonryReduceMotion && el.animate &&
+            (Math.abs(from.x - now.x) > 1 || Math.abs(from.y - now.y) > 1)) {
+          el.animate(
+            [{ transform: 'translate(' + (from.x - now.x) + 'px, ' + (from.y - now.y) + 'px)' }, { transform: 'none' }],
+            { duration: MASONRY_SETTLE_MS, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }
+          );
+        }
+      });
+    }
+    sizeMasonryItems();
+    // Width/height attributes give the browser an intrinsic ratio to
+    // size against immediately, but re-measure once everything has
+    // actually finished loading (and once more per item as each image/
+    // video resolves) as a safety net against any that were off on the
+    // first pass — a stale span leaves either a gap or an overlap.
+    window.addEventListener('load', function () { sizeMasonryItems(); });
+    var mediaEls = drawGrid.querySelectorAll('img, video');
+    mediaEls.forEach(function (el) {
+      var evt = el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load';
+      el.addEventListener(evt, function () { sizeMasonryItems(); });
+    });
+    // On a width change, re-span in the same frame the layout changes (so nothing is ever
+    // drawn overlapping) and let the items settle into place.
+    var masonryWidth = drawGrid.clientWidth;
+    function onMasonryResize() {
+      if (drawGrid.clientWidth === masonryWidth) return;
+      masonryWidth = drawGrid.clientWidth;
+      sizeMasonryItems(true);
+    }
+    if (window.ResizeObserver) new ResizeObserver(onMasonryResize).observe(drawGrid);
+    else window.addEventListener('resize', onMasonryResize);
+  }
+
+  // Easter eggs: links marked .portkey-link (e.g. the Hogwarts doodle,
+  // which secretly leads to the real Harry Potter Halloween decor on
+  // the craft page) get the same "portkey activating" launch
+  // transition as the homepage word rotator's link to craft.html,
+  // instead of a plain page swap. The class is added right before the
+  // browser navigates; the matching animation lives in main.css/craft.css.
+  document.querySelectorAll('a.portkey-link').forEach(function (a) {
+    a.addEventListener('click', function () {
+      document.documentElement.classList.add('portkey-launch');
+    });
+  });
+
+  // Cmd+Right (Ctrl+Right on Windows/Linux) jumps to the next case study
+  // from anywhere on a work/*.html page. Every one of those pages ends
+  // with a .work-next link, so this quietly does nothing anywhere else.
+  var nextLink = document.querySelector('.work-next');
+  if (nextLink) {
+    window.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'ArrowRight') {
+        e.preventDefault();
+        window.location.href = nextLink.href;
+      }
+    });
+  }
+
+  // Doodles page: click an illustration to see it full-size in a
+  // lightbox, built once here and reused for every trigger. The
+  // portkey-link video is skipped since it already has its own click
+  // behavior (a secret link to the craft page).
+  //
+  // The lightbox steps through the same list of illustrations: previous /
+  // next buttons beside the image, left / right arrow keys, and a swipe on
+  // touch screens. Escape, the close button, or a click on the backdrop
+  // closes it. On devices with a real pointer, hovering an illustration
+  // shows a small expand button in its corner (one shared button, moved
+  // onto whichever illustration is hovered).
+  var doodleGrid = document.querySelector('.draw-grid');
+  if (doodleGrid) {
+    var ICONS = {
+      expand: '<path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9"/>',
+      collapse: '<path d="M13 7H9V3M9 7l4.5-4.5M3 9h4v4M7 9l-4.5 4.5"/>',
+      prev: '<path d="M10 3L5 8l5 5"/>',
+      next: '<path d="M6 3l5 5-5 5"/>'
+    };
+    function iconSvg(name) {
+      return '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>';
+    }
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var FLY_MS = 320;     // grow from / shrink back to the thumbnail
+    var FLY_EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+    var STEP_MS = 240;    // slide between illustrations
+    var STEP_SHIFT = 32;  // px the new image travels
+
+    var lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', 'Illustration viewer');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.innerHTML =
+      '<button class="doodle-ctrl lightbox__close" type="button" aria-label="Close">' + iconSvg('collapse') + '</button>' +
+      '<button class="doodle-ctrl lightbox__nav lightbox__nav--prev" type="button" aria-label="Previous illustration">' + iconSvg('prev') + '</button>' +
+      '<div class="lightbox__content"></div>' +
+      '<button class="doodle-ctrl lightbox__nav lightbox__nav--next" type="button" aria-label="Next illustration">' + iconSvg('next') + '</button>';
+    document.body.appendChild(lightbox);
+
+    var lightboxContent = lightbox.querySelector('.lightbox__content');
+    var lightboxClose = lightbox.querySelector('.lightbox__close');
+    var lightboxPrev = lightbox.querySelector('.lightbox__nav--prev');
+    var lightboxNext = lightbox.querySelector('.lightbox__nav--next');
+    var lightboxItems = [];     // the illustrations, in page order
+    var lightboxIndex = 0;
+    var hiddenThumb = null;     // the thumbnail currently standing in for the open image
+    var lastFocused = null;
+    var closing = null;         // the shrink-back animation, if one is running
+
+    function fullSrc(el) { return el.getAttribute('data-full') || el.currentSrc || el.src; }
+
+    // Show one illustration: the thumbnail (already loaded) straight away, with the full-size
+    // file fading in over it once it has loaded and decoded. Videos open as they are.
+    function showLightboxItem(index) {
+      lightboxIndex = index;
+      var el = lightboxItems[index];
+
+      if (hiddenThumb) hiddenThumb.style.visibility = '';
+      hiddenThumb = el;
+      el.style.visibility = 'hidden';   // the copy in the lightbox stands in for it
+
+      lightboxContent.getAnimations().forEach(function (a) { a.cancel(); });
+      lightboxContent.innerHTML = '';
+      lightboxContent.style.setProperty('--ratio', (el.getAttribute('width') / el.getAttribute('height')) || 1);
+
+      if (el.tagName === 'VIDEO') {
+        var video = el.cloneNode(true);
+        video.removeAttribute('class');
+        video.removeAttribute('style');      // the original was just hidden; don't copy that
+        video.removeAttribute('tabindex');
+        video.setAttribute('controls', '');
+        video.muted = true;
+        lightboxContent.appendChild(video);
+        video.play().catch(function () {});
+      } else {
+        var thumb = new Image();
+        thumb.alt = el.alt;
+        thumb.src = el.currentSrc || el.src;
+        lightboxContent.appendChild(thumb);
+
+        if (fullSrc(el) !== thumb.src) {
+          var full = new Image();
+          full.className = 'lightbox__full';
+          full.alt = '';
+          full.src = fullSrc(el);
+          lightboxContent.appendChild(full);
+          if (full.complete) {
+            full.classList.add('is-loaded');   // cached: no placeholder phase
+          } else {
+            // decode before fading so a big image can't stutter mid-fade
+            (full.decode ? full.decode() : Promise.resolve()).catch(function () {}).then(function () {
+              full.classList.add('is-loaded');
+            });
+          }
+        }
+      }
+
+      // preload the neighbours (wrapping at the ends) so stepping is quick
+      var count = lightboxItems.length;
+      [index - 1, index + 1].forEach(function (i) {
+        var n = lightboxItems[(i + count) % count];
+        if (n && n.tagName === 'IMG') new Image().src = fullSrc(n);
+      });
+    }
+
+    // FLIP: move the lightbox image between the thumbnail's rect and its own, using transform only
+    function flyTransform(fromRect, toRect) {
+      var scale = fromRect.width / toRect.width;
+      return 'translate(' + (fromRect.left - toRect.left) + 'px, ' + (fromRect.top - toRect.top) + 'px) scale(' + scale + ')';
+    }
+
+    function openLightbox(mediaEl) {
+      if (closing) { closing.onfinish = null; closing.cancel(); closing = null; }   // reopened mid-shrink
+      lastFocused = document.activeElement;
+      var thumbRect = mediaEl.getBoundingClientRect();   // measured before the page lock can shift the layout
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lightbox-locked');
+      showLightboxItem(lightboxItems.indexOf(mediaEl));
+      if (!reduceMotion && lightboxContent.animate) {
+        lightboxContent.animate(
+          [{ transform: flyTransform(thumbRect, lightboxContent.getBoundingClientRect()) }, { transform: 'none' }],
+          { duration: FLY_MS, easing: FLY_EASE }
+        );
+      }
+      lightboxClose.focus({ preventScroll: true });
+      document.addEventListener('keydown', onLightboxKeydown);
+    }
+
+    function closeLightbox() {
+      if (!lightbox.classList.contains('is-open')) return;
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('lightbox-locked');
+      document.removeEventListener('keydown', onLightboxKeydown);
+
+      var el = lightboxItems[lightboxIndex];
+      function finish() {
+        closing = null;
+        lightboxContent.innerHTML = '';
+        if (hiddenThumb) hiddenThumb.style.visibility = '';
+        hiddenThumb = null;
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus({ preventScroll: true });
+      }
+      if (reduceMotion || !lightboxContent.animate) { finish(); return; }
+
+      var t = el.getBoundingClientRect();   // after the unlock, i.e. where the thumbnail will be
+      var onScreen = t.bottom > 0 && t.top < window.innerHeight && t.right > 0 && t.left < window.innerWidth;
+      var frames = onScreen
+        ? [{ transform: 'none' }, { transform: flyTransform(t, lightboxContent.getBoundingClientRect()) }]
+        : [{ opacity: 1 }, { opacity: 0 }];   // its thumbnail is off-screen: just fade
+      closing = lightboxContent.animate(frames, { duration: FLY_MS, easing: FLY_EASE, fill: 'forwards' });
+      closing.onfinish = finish;
+    }
+
+    function stepLightbox(dir) {
+      var count = lightboxItems.length;
+      showLightboxItem((lightboxIndex + dir + count) % count);   // loops: past the last illustration comes the first
+      // the new image slides in a short way from the direction we're heading (transform + opacity only)
+      if (!reduceMotion && lightboxContent.animate) {
+        lightboxContent.animate(
+          [{ transform: 'translateX(' + dir * STEP_SHIFT + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+          { duration: STEP_MS, easing: FLY_EASE }
+        );
+      }
+    }
+
+    function onLightboxKeydown(e) {
+      if (e.key === 'Escape') closeLightbox();
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); stepLightbox(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); stepLightbox(1); }
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', function () { stepLightbox(-1); });
+    lightboxNext.addEventListener('click', function () { stepLightbox(1); });
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    // touch: swipe left / right to step, swipe down to close
+    var swipeX = 0, swipeY = 0;
+    lightbox.addEventListener('touchstart', function (e) {
+      swipeX = e.changedTouches[0].clientX;
+      swipeY = e.changedTouches[0].clientY;
+    }, { passive: true });
+    lightbox.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - swipeX;
+      var dy = e.changedTouches[0].clientY - swipeY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) stepLightbox(dx < 0 ? 1 : -1);
+      else if (dy > 80 && dy > Math.abs(dx) * 1.5) closeLightbox();
+    }, { passive: true });
+
+    doodleGrid.querySelectorAll('img, video').forEach(function (el) {
+      if (el.closest('.portkey-link')) return;
+      lightboxItems.push(el);
+      el.classList.add('lightbox-trigger');
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('click', function () { openLightbox(el); });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightbox(el);
+        }
+      });
+    });
+
+    // hover affordance: a small expand button in the corner of the illustration under the pointer
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      var expandBtn = document.createElement('button');
+      expandBtn.className = 'doodle-ctrl doodle-expand';
+      expandBtn.type = 'button';
+      expandBtn.tabIndex = -1;                 // keyboard users open an illustration with Enter on the image itself
+      expandBtn.setAttribute('aria-hidden', 'true');
+      expandBtn.innerHTML = iconSvg('expand');
+      doodleGrid.appendChild(expandBtn);
+
+      var hoverEl = null, hoverHideTimer;
+      function showExpand(el) {
+        clearTimeout(hoverHideTimer);
+        hoverEl = el;
+        expandBtn.style.left = (el.offsetLeft + el.offsetWidth - expandBtn.offsetWidth - 10) + 'px';
+        expandBtn.style.top = (el.offsetTop + 10) + 'px';
+        expandBtn.classList.add('is-visible');
+      }
+      function hideExpand() {
+        hoverHideTimer = setTimeout(function () {
+          hoverEl = null;
+          expandBtn.classList.remove('is-visible');
+        }, 60);   // short grace so moving from the image onto its button doesn't flicker
+      }
+      doodleGrid.addEventListener('mouseover', function (e) {
+        var el = e.target.closest('.lightbox-trigger');
+        if (el) showExpand(el);
+      });
+      doodleGrid.addEventListener('mouseout', function (e) {
+        if (e.target.closest('.lightbox-trigger')) hideExpand();
+      });
+      expandBtn.addEventListener('mouseenter', function () { clearTimeout(hoverHideTimer); });
+      expandBtn.addEventListener('mouseleave', hideExpand);
+      expandBtn.addEventListener('click', function () { if (hoverEl) openLightbox(hoverEl); });
+      window.addEventListener('resize', function () { expandBtn.classList.remove('is-visible'); });
+    }
+  }
+});
+
+// Page transitions: the arriving page's nav is its own view-transition layer and shows at full
+// opacity from the first frame (see main.css), so only the content cross-fades and the nav never
+// blinks. Skipped for #hash links (the page scrolls away from the nav right after landing) and for
+// the craft page, whose portkey reveal needs everything under the iris.
+(function () {
+  if (!("onpagereveal" in window)) return;
+  window.addEventListener("pagereveal", function (e) {
+    var nav = document.querySelector("site-nav > .nav");
+    if (!e.viewTransition || !nav || location.hash || window.scrollY > 8) return;
+    if (document.body && document.body.classList.contains("craft-page")) return;
+    nav.style.viewTransitionName = "site-nav";
+    e.viewTransition.finished.finally(function () { nav.style.viewTransitionName = ""; });
+  });
+})();
+
+// Case-study headings rise in letter by letter, the same push the hero rotator uses.
+// Respects reduced motion; the heading keeps its text for assistive tech.
+function buildRiseHeading() {
+  var h1 = document.querySelector(".work-header h1");
+  if (!h1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var text = h1.textContent;
+  h1.setAttribute("aria-label", text);
+  var clip = document.createElement("span");
+  clip.className = "rise-clip";
+  clip.setAttribute("aria-hidden", "true");
+  text.split("").forEach(function (ch, i) {
+    var s = document.createElement("span");
+    s.className = "rise-char";
+    s.style.setProperty("--i", i);
+    s.textContent = ch === " " ? "\u00a0" : ch;
+    clip.appendChild(s);
+  });
+  h1.textContent = "";
+  h1.appendChild(clip);
+}
+
+// Banner fades must start after the page is actually on screen: a class added before the first
+// paint has no earlier style to transition from, and during a page transition the new page is
+// still fading in. "revealed" resolves after the view transition (if any) and two frames.
+var revealed = new Promise(function (resolve) {
+  function go() { requestAnimationFrame(function () { requestAnimationFrame(resolve); }); }
+  if ("onpagereveal" in window) {
+    window.addEventListener("pagereveal", function (e) {
+      if (e.viewTransition) e.viewTransition.finished.then(go, go); else go();
+    }, { once: true });
+    setTimeout(go, 1500); // safety net
+  } else {
+    go();
+  }
+});
+
+function whenDecoded(imgs) {
+  return Promise.all(imgs.map(function (i) {
+    return (i.decode ? i.decode() : Promise.resolve()).catch(function () {});
+  }));
+}
+
+function fadeInBanners() {
+  // image banners: fade the image in over its tinted frame
+  document.querySelectorAll(".work-banner-frame > img").forEach(function (img) {
+    Promise.all([revealed, whenDecoded([img])]).then(function () { img.classList.add("is-loaded"); });
+  });
+  // multi-layer and inline-SVG banners: lift a tinted cover instead (no opacity on animated layers)
+  document.querySelectorAll(".work-banner-fade, .work-banner-frame--svg").forEach(function (box) {
+    var imgs = Array.prototype.slice.call(box.querySelectorAll("img"));
+    Promise.all([revealed, whenDecoded(imgs)]).then(function () { box.classList.add("is-loaded"); });
+  });
+}
+
+// This script loads synchronously in <head> so the nav and footer exist for the first paint.
+// The heading stays hidden (see main.css) until its letters are built, then is revealed.
+document.documentElement.classList.add("has-js");
+document.addEventListener("DOMContentLoaded", function () {
+  buildRiseHeading();
+  fadeInBanners();
+  document.documentElement.classList.add("rise-ready");
+});

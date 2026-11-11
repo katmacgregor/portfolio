@@ -1,0 +1,13 @@
+# build output
+dist/
+node_modules/
+
+# macOS
+.DS_Store
+
+# local only, never committed: in-progress prototypes
+drafts/
+# local only: Python helper scripts
+scripts/
+# local only: unstamped doodle originals, full .ttf/.otf font files
+private/

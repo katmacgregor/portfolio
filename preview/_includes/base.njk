@@ -1,0 +1,44 @@
+{#-
+  Shared page shell. Each page sets its own front matter:
+    title        page name; the tab reads "<title> · Katrina MacGregor"
+    fullTitle    (optional) replaces the whole title, used by the home page
+    description  (optional) meta description
+    css          (optional) extra stylesheets after main.css, e.g. ["assets/css/craft.css"]
+    scripts      (optional) extra scripts after partials.js, e.g. [{ "src": "assets/js/x.js", "defer": true }]
+    preload      (optional) extra images to preload, e.g. ["assets/images/hp/parchment-bg.webp"]
+    bodyClass / bodyAttrs   (optional) added to <body>
+  Paths are written from the site root; {{ root }} turns them into "../" form for pages in work/.
+-#}
+{%- set root = page.url | relroot -%}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ fullTitle or (title + " · Katrina MacGregor") }}</title>
+  {%- if description %}
+  <meta name="description" content="{{ description }}">
+  {%- endif %}
+  <link rel="icon" href="{{ root }}assets/images/favicon.ico">
+  <link rel="preload" href="{{ root }}assets/fonts/Mulish-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ root }}assets/fonts/Fraunces-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  {%- for img in preload %}
+  <link rel="preload" href="{{ root }}{{ img }}" as="image">
+  {%- endfor %}
+  <link rel="stylesheet" href="{{ root }}assets/css/main.css">
+  {%- for sheet in css %}
+  <link rel="stylesheet" href="{{ root }}{{ sheet }}">
+  {%- endfor %}
+  <script src="{{ root }}assets/js/partials.js"></script>
+  {%- for s in scripts %}
+  <script src="{{ root }}{{ s.src }}"{% if s.defer %} defer{% endif %}></script>
+  {%- endfor %}
+</head>
+<body{% if bodyClass %} class="{{ bodyClass }}"{% endif %}{% if bodyAttrs %} {{ bodyAttrs | safe }}{% endif %}>
+
+<!-- fancy meeting you here. if you're looking to find me, let's chat -- hello@katrinamacgregor.com -->
+
+{% include "nav.njk" %}
+{{ content | safe }}
+</body>
+</html>

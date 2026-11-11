@@ -1,0 +1,26 @@
+---
+layout: base.njk
+---
+{#-
+  Case-study layout. A work page's front matter supplies:
+    title                     the page <title>. The header (name, role, year, number) comes from this page's entry in _data/work.json
+    banner                    (optional) a standard image banner: { bg, ratio, src, w, h, alt }
+  Pages with a custom banner (inline SVG, logo loop) put it at the top of their body instead.
+  The body is the page's own <div class="work-body">. Prev/next links come from _data/work.json (see work-pagination.njk).
+-#}
+{%- set root = page.url | relroot -%}
+{%- set nb = work | workNeighbors(page.fileSlug) -%}
+<main>
+  <article>
+    {% include "work-header.njk" %}
+{% if banner %}
+    <div class="work-banner-frame" style="--banner-bg: {{ banner.bg }}; --banner-ratio: {{ banner.ratio }}">
+      <img class="work-banner work-banner--wide" src="{{ root }}{{ banner.src }}" width="{{ banner.w }}" height="{{ banner.h }}" decoding="async" alt="{{ banner.alt }}">
+    </div>
+{% endif %}
+{{ content | safe }}
+    {% include "work-pagination.njk" %}
+  </article>
+</main>
+
+{% include "footer.njk" %}

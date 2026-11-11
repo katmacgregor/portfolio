@@ -1,0 +1,93 @@
+---
+layout: work.njk
+title: "m:UX"
+banner:
+  bg: "#62b5f2"
+  ratio: "1228 / 493"
+  src: "assets/images/mux-hp.webp"
+  w: 1228
+  h: 493
+  alt: "m:UX component library homepage"
+---
+<div class="work-body wrap-width">
+      <div class="work-entry">
+        <div class="text-emphasize">
+          <p>I established and led m:UX Engineering (from Matterhorn, the modular CMS + frontend platform), a team of designer/coders developing a common design system to power Disney's portfolio of sites.</p>
+          <p>Internal tools were often built independently, creating duplicated effort and inconsistent experiences. m:UX created a common layer known as m:Reboot that could scale across products and backend touchpoints. A prior project for <a class="link-accent link-border" href="shopdisney.html">shopDisney</a> introduced middleware to separate shared backend services from individual frontends, and m:UX applied that same architectural thinking to the backend service interfaces.</p>
+        </div>
+      </div>
+      <div class="work-entry__media">
+        <img src="../assets/images/mux-lib-el.webp" width="1237" height="850" decoding="async" loading="lazy" alt="m:Reboot UI Components library documentation listing available components like Breadcrumb and Button" class="skip-aspect-ratio">
+      </div>
+
+      <div class="work-entry work-entry--reverse">
+        <div class="work-entry__media work-entry__media--stage flex-wide">
+          <svg class="svg-anim-gate mux-hierarchy-build skip-aspect-ratio" role="img" aria-label="Diagram of the m:Reboot CSS architecture stack, animating in layer by layer from Bootstrap 4 at the base up to app-specific styles on top" width="100%" height="100%" viewBox="0 0 1500 1125" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+          <style>
+            <![CDATA[
+              /* CSS hierarchy stack: each layer sinks into place one at a
+                 time, starting with the foundation (Bootstrap 4, #level-1)
+                 and building up through the external library, the app's
+                 own reboot layer, and finally app-specific styles on top
+                 (#level-11) -- same bottom-to-top order the stack itself
+                 represents. Base (non-animated) state is already the
+                 fully-assembled diagram, so reduced-motion/no-JS just
+                 shows it complete; the animation only plays once while
+                 scrolled into view (.svg-anim-gate, main.css + partials.js
+                 handle the pause/resume). Each layer is a single rasterized
+                 <image> (mux-hierarchy-level-*.webp) rather than live
+                 vector/text paths -- nothing below the whole-layer level
+                 ever animates on its own, so there's no reason to ship the
+                 outlined-text path data (151 paths, ~150KB) that a
+                 vector version would need. #level-1 etc. carry no SVG
+                 transform of their own, so the CSS transform below
+                 animates cleanly. 4 layers x 1s each, back-to-back = 4s
+                 total, then holds on the finished stack. */
+              #level-1, #level-2, #level-3, #level-11 {
+                transform-box: fill-box;
+                transform-origin: 50% 50%;
+              }
+              #level-1  { animation: mux-level-sink 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) 0ms both; }
+              #level-2  { animation: mux-level-sink 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) 1000ms both; }
+              #level-3  { animation: mux-level-sink 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) 2000ms both; }
+              #level-11 { animation: mux-level-sink 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) 3000ms both; }
+              @keyframes mux-level-sink {
+                0%   { opacity: 0; transform: translateY(-18px) scale(1.06); }
+                65%  { opacity: 1; transform: translateY(2px) scale(0.99); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+              }
+            ]]>
+          </style>
+          <g id="level-1"><image x="122.0" y="731.0" width="1279.0" height="225.0" xlink:href="../assets/images/mux-hierarchy-level-1.webp"/></g>
+          <g id="level-2"><image x="120.0" y="551.5" width="1281.0" height="225.0" xlink:href="../assets/images/mux-hierarchy-level-2.webp"/></g>
+          <g id="level-3"><image x="119.5" y="373.5" width="1279.5" height="225.0" xlink:href="../assets/images/mux-hierarchy-level-3.webp"/></g>
+          <g id="level-11"><image x="99.0" y="169.0" width="1283.0" height="249.5" xlink:href="../assets/images/mux-hierarchy-level-4.webp"/></g>
+          </svg>
+        </div>
+        <div class="work-entry__text work-entry__text--compact">
+          <h3 class="subhead">Designing for Scale</h3>
+          <p>We designed and developed a component library that combined custom React components with proven Bootstrap patterns. It was straightforward for the backend developers to adopt and implement, and had configurable theming, allowing each internal product to maintain its own identity.</p>
+        </div>
+      </div>
+
+
+      <div class="work-entry">
+        <div class="work-entry__media">
+          <img src="../assets/images/mux-graph-char.jpg" width="1024" height="645" decoding="async" loading="lazy" alt="m:Graph character editor showing metadata and relationship fields for a Disney character" class="skip-aspect-ratio">
+        </div>
+        <div class="work-entry__text work-entry__text--compact">
+          <h3 class="subhead">Leading the Team</h3>
+          <p>I became a people manager, leading a team of 3 while continuing to contribute hands-on to the architecture, design, and implementation. After years of learning to build scalable systems, I was now responsible for guiding other designers and developers in creating them.</p>
+        </div>
+      </div>
+
+      <h3 class="subhead takeaways">Takeaways</h3>
+        <p>m:UX shifted my perspective from designing individual experiences to considering the <span class="takeaways-strong">broader ecosystem</span> in which they exist. Building for producers, admins, and developers made me think beyond the immediate interface to the systems, dependencies, and people that shape the experience. That perspective has stayed with me through Apple, where <span class="takeaways-strong">cohesive experiences span products, hardware, software, and the teams</span> building them.</p>
+      <div class="work-media--pair">
+          <img src="../assets/images/mux-lib-rich.png" width="1281" height="802" decoding="async" loading="lazy" alt="m:Reboot RichText component documentation showing its default toolbar and editor" class="skip-aspect-ratio">
+          <img src="../assets/images/mux-lib-modal.png" width="1281" height="802" decoding="async" loading="lazy" alt="m:Reboot RichText component's image details modal with alt text and caption fields" class="skip-aspect-ratio">
+        </div>
+
+      
+
+    </div>

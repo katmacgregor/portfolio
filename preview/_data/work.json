@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "mux",
+    "title": "m:UX",
+    "role": "Lead Software Engineer",
+    "year": "2018"
+  },
+  {
+    "slug": "shopdisney",
+    "title": "shopDisney",
+    "role": "Senior/Lead Software Engineer",
+    "year": "2017"
+  },
+  {
+    "slug": "creative-technology",
+    "title": "Creative Technology",
+    "role": "Senior Software Engineer",
+    "year": "2016"
+  },
+  {
+    "slug": "star-wars",
+    "title": "Star Wars",
+    "role": "Web Application Developer",
+    "year": "2015"
+  },
+  {
+    "slug": "disney-junior",
+    "title": "Disney Junior",
+    "role": "Web Application Developer",
+    "year": "2013"
+  }
+]

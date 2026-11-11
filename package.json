@@ -1,0 +1,14 @@
+{
+  "name": "katrina-macgregor-portfolio",
+  "private": true,
+  "description": "Static portfolio built with Eleventy. Pages and layouts live in preview/, the built site goes to dist/.",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "deploy": "npm run build && gh-pages -d dist --dotfiles"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "gh-pages": "^6.1.1"
+  }
+}

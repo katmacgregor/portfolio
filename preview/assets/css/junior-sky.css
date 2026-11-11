@@ -1,0 +1,172 @@
+/* Disney Junior case study: the day/night sky banner (loaded by work/disney-junior.html only).
+   Reduced motion and the in-view pause are handled globally by .svg-anim-gate in main.css. */
+
+/* --- Daytime sky animation --- */
+
+/* Sun-glow: subtle pulse via scale + opacity */
+.sun-glow-pulse {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sun-glow-pulse 5s ease-in-out infinite;
+}
+@keyframes sun-glow-pulse {
+  0%   { transform: scale(1);    opacity: 1;    }
+  50%  { transform: scale(0.92); opacity: 0.7;  }
+  100% { transform: scale(1);    opacity: 1;    }
+}
+
+/* --- Day / night cycle: 5s day, 8s transition, 5s night, 8s transition, repeat (26s total) --- */
+.scene-day {
+  animation: cycle-day 30s ease-in-out infinite;
+}
+.scene-night {
+  animation: cycle-night 30s ease-in-out infinite;
+}
+@keyframes cycle-day {
+  0%, 16.6667%      { opacity: 1; }
+  29.1667%, 87.5%   { opacity: 0; }
+  100%              { opacity: 1; }
+}
+@keyframes cycle-night {
+  0%, 16.6667%      { opacity: 0; }
+  29.1667%, 87.5%   { opacity: 1; }
+  100%              { opacity: 0; }
+}
+
+/* Sunset pink overlay: a separate translucent layer above the
+   permanent blue base, fading in only during sunset (day->night) */
+.sunset-pink-overlay {
+  animation: sunset-pink-overlay 30s ease-in-out infinite;
+}
+@keyframes sunset-pink-overlay {
+  0%, 16.6667%     { opacity: 0; }
+  22.9167%         { opacity: 0.6; }
+  29.1667%, 100%   { opacity: 0; }
+}
+
+/* Sky glow gradient: day -> sunset (pink) -> night -> sunset -> day,
+   animated directly on the gradient's own stop colors, timed to
+   the sun's own descent/rise */
+.glow-stop0 { animation: glow-stop0 30s ease-in-out infinite; }
+@keyframes glow-stop0 {
+  0%, 16.6667%  { stop-color: rgb(103,155,228); stop-opacity: 1; }
+  22.9167%      { stop-color: #F15796; stop-opacity: 1; }
+  29.1667%, 87.5%, 100% { stop-color: rgb(103,155,228); stop-opacity: 1; }
+}
+.glow-stop1 { animation: glow-stop1 30s ease-in-out infinite; }
+@keyframes glow-stop1 {
+  0%, 16.6667%  { stop-color: rgb(128,172,232); stop-opacity: 0.96; }
+  22.9167%      { stop-color: #F15796; stop-opacity: 0.96; }
+  29.1667%, 87.5% { stop-color: rgb(107,158,229); stop-opacity: 0.96; }
+  100%          { stop-color: rgb(128,172,232); stop-opacity: 0.96; }
+}
+.glow-stop2 { animation: glow-stop2 30s ease-in-out infinite; }
+@keyframes glow-stop2 {
+  0%, 16.6667%  { stop-color: rgb(189,212,243); stop-opacity: 0.88; }
+  22.9167%      { stop-color: #F15796; stop-opacity: 0.88; }
+  29.1667%, 87.5% { stop-color: rgb(116,165,232); stop-opacity: 0.88; }
+  100%          { stop-color: rgb(189,212,243); stop-opacity: 0.88; }
+}
+.glow-stop3 { animation: glow-stop3 30s ease-in-out infinite; }
+@keyframes glow-stop3 {
+  0%, 16.6667%  { stop-color: white; stop-opacity: 0.78; }
+  22.9167%      { stop-color: #F15796; stop-opacity: 0.78; }
+  29.1667%, 87.5% { stop-color: rgb(126,173,236); stop-opacity: 0.78; }
+  100%          { stop-color: white; stop-opacity: 0.78; }
+}
+
+/* Two shooting stars, each firing once per cycle during the night hold */
+.shoot1 {
+  animation: shoot1 30s linear infinite;
+}
+@keyframes shoot1 {
+  0%, 51%     { opacity: 0; transform: translate(150px, 50px); }
+  52.67%      { opacity: 1; }
+  54.33%, 100% { opacity: 0; transform: translate(430px, 140px); }
+}
+.shoot2 {
+  animation: shoot2 30s linear infinite;
+}
+@keyframes shoot2 {
+  0%, 59%     { opacity: 0; transform: translate(850px, 40px); }
+  60.67%      { opacity: 1; }
+  62.33%, 100% { opacity: 0; transform: translate(1120px, 130px); }
+}
+
+/* Sun swoop: sets down to the lower-right during the day->night
+   transition, rises back during the night->day transition.
+   (CSS, not SMIL, so it shares one clock with the rest of the file) */
+.sun-swoop {
+  animation: sun-swoop 30s ease-in-out infinite;
+}
+@keyframes sun-swoop {
+  0%, 16.6667%       { transform: translate(0px, 0px); }
+  29.1667%, 87.5%    { transform: translate(17.513px, 62.823px); }
+  100%               { transform: translate(0px, 0px); }
+}
+
+/* Moon swoop: reverse of the sun's path -- rises from the same
+   hidden spot the sun set into, settles into the sun's old spot */
+.moon-swoop {
+  animation: moon-swoop 30s ease-in-out infinite;
+}
+@keyframes moon-swoop {
+  0%, 29.1667%       { transform: translate(17.513px, 62.823px); }
+  41.6667%, 75%      { transform: translate(0px, 0px); }
+  87.5%, 100%        { transform: translate(17.513px, 62.823px); }
+}
+
+/* Moon-glow: same pulse shape as the sun-glow, but slower */
+.moon-glow-pulse {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sun-glow-pulse 14s ease-in-out infinite;
+}
+
+/* Moon rock: gentle rocking-chair sway to the left, only while
+   the moon is holding its fully-raised position */
+.moon-rock {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: moon-rock 30s ease-in-out infinite;
+}
+@keyframes moon-rock {
+  0%, 41.6667%, 45%    { transform: rotate(0deg); }
+  48.5417%             { transform: rotate(-9deg); }
+  52.0833%             { transform: rotate(0deg); }
+  55.625%              { transform: rotate(-9deg); }
+  59.1667%             { transform: rotate(0deg); }
+  62.7083%             { transform: rotate(-9deg); }
+  66.25%               { transform: rotate(0deg); }
+  69.7917%             { transform: rotate(-9deg); }
+  73.3333%             { transform: rotate(0deg); }
+  76.875%              { transform: rotate(-9deg); }
+  80.4167%             { transform: rotate(0deg); }
+  83.9583%             { transform: rotate(-9deg); }
+  87.5%, 100%          { transform: rotate(0deg); }
+}
+
+/* Stars: gentle independent twinkle (opacity only, so it never
+   disturbs each star's own position transform) */
+.star-twinkle {
+  animation-name: star-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* Stars visibility envelope: fades in once the moon is about
+   halfway through rising, fades out as the moon retreats */
+.stars-fade {
+  animation: stars-fade 30s ease-in-out infinite;
+}
+@keyframes stars-fade {
+  0%, 35.4167%  { opacity: 0; }
+  47.9167%      { opacity: 1; }
+  68.75%        { opacity: 1; }
+  81.25%        { opacity: 0; }
+  100%          { opacity: 0; }
+}
