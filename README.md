@@ -1,6 +1,6 @@
 # Portfolio (Eleventy)
 
-Static site built with [Eleventy](https://www.11ty.dev). Source is in `preview/`, the built site goes to `dist/` (git-ignored).
+Static site built with [Eleventy](https://www.11ty.dev).
 
 ```
 npm install        # once
@@ -16,10 +16,10 @@ npm run deploy     # build + publish dist/ to the gh-pages branch
 
   ```yaml
   ---
-  title: "Doodles"                 # tab reads "Doodles · Katrina MacGregor"
-  css: ["assets/css/craft.css"]    # optional extra stylesheets
+  title: "Doodles"                 # tab reads "Doodles · Name"
+  css: ["assets/css/XX.css"]    # optional extra stylesheets
   scripts: [{"src": "assets/js/x.js", "defer": true}]   # optional extra scripts
-  preload: ["assets/images/hp/parchment-bg.webp"]       # optional image preloads
+  preload: [""]       # optional image preloads
   description: "..."               # optional meta description
   ---
   ```
@@ -29,4 +29,4 @@ npm run deploy     # build + publish dist/ to the gh-pages branch
 
 ## Local-only folders
 
-`drafts/` (prototypes), `scripts/` (Python helpers) and `private/` (unstamped doodle originals, full `.ttf`/`.otf` font files) are git-ignored and never published. Only the `.woff2` web fonts and the stamped images live in `preview/assets/`.
+`drafts/` , `scripts/`  `private/` are git-ignored.
