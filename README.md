@@ -3,10 +3,10 @@
 Static site built with [Eleventy](https://www.11ty.dev). Source is in `preview/`, the built site goes to `dist/` (git-ignored).
 
 ```
-npm install        # once, from new-portfolio/
+npm install        # once
 npm start          # dev server with live reload
 npm run build      # writes dist/
-npm run deploy     # build + publish dist/ to gh-pages (or: npm run deploy:new-portfolio from the repo root)
+npm run deploy     # build + publish dist/ to the gh-pages branch
 ```
 
 ## Layout
