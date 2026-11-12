@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="tw-sync" content="https://sync.katrinamacgregor.com">
+<title>Sign in</title>
+<style>
+@font-face{font-family:"Mulish";src:url("/assets/fonts/Mulish-Variable.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
+:root{
+  --light-default:#fdfbfb;--dark-default:#1a1a1a;
+  --page-bg:var(--light-default);--text-primary:var(--dark-default);--text-secondary:#555;--text-muted:#8a8a8a;
+  --border:#ececec;--border-strong:#d8d8d0;--field-bg:#fff;--accent:#E6B34A;--error:#c4483f;
+  --font-sans:"Mulish",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){:root{
+  --page-bg:var(--dark-default);--text-primary:#fcfcfc;--text-secondary:#c0c0c0;--text-muted:#7b7979;
+  --border:#333;--border-strong:#4a4a4a;--field-bg:#212424;--error:#f08a7e;
+}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{display:grid;place-items:center;background:var(--page-bg);color:var(--text-primary);font-family:var(--font-sans);font-size:17px;line-height:1.45;padding:24px 16px}
+[hidden]{display:none!important}
+.wrap{width:100%;max-width:820px;display:grid;gap:48px;align-items:center}
+.card{width:100%;max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-weight:700;font-size:28px;letter-spacing:-.01em}
+h2{margin:0;font-weight:700;font-size:19px}
+p{margin:0;color:var(--text-secondary)}
+.err{color:var(--error);font-weight:600}
+p:empty{display:none}
+.field{position:relative}
+.field input{width:100%;min-height:52px;font:inherit;font-size:19px;padding:0 84px 0 16px;border-radius:12px;border:1px solid var(--border-strong);background:var(--field-bg);color:inherit}
+.reveal{position:absolute;right:6px;top:6px;bottom:6px;min-width:68px;font:inherit;font-size:15px;font-weight:600;border:0;border-radius:8px;background:transparent;color:var(--text-secondary);cursor:pointer}
+.reveal:hover{color:var(--text-primary);background:var(--border)}
+.check{display:flex;align-items:center;gap:10px;min-height:44px;font-size:16px;color:var(--text-secondary);cursor:pointer}
+.check input{width:20px;height:20px;margin:0;accent-color:var(--text-primary)}
+.btn{min-height:52px;font:inherit;font-size:17px;font-weight:700;border-radius:12px;border:1px solid var(--text-primary);background:var(--text-primary);color:var(--page-bg);cursor:pointer;padding:0 20px}
+.btn.quiet{background:transparent;color:var(--text-primary);border-color:var(--border-strong)}
+.btn:disabled{opacity:.55;cursor:progress}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pair{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding-left:48px;border-left:1px solid var(--border)}
+.qr{width:256px;max-width:100%}
+.qr svg{width:100%;height:auto;display:block}
+.pair p{max-width:260px;font-size:15px}
+.done{color:var(--text-primary);font-weight:600}
+@media (min-width:900px){.wrap.has-pair{grid-template-columns:1fr auto}}
+@media (min-width:1600px){body{zoom:1.5}}   /* readable from the couch on a TV */
+body.busy main{visibility:hidden}
+body.busy::after{content:attr(data-busy);position:fixed;inset:0;display:grid;place-items:center;font-size:18px;color:var(--text-secondary)}
+</style>
+</head>
+<body class="busy" data-busy="Loading…">
+<main class="wrap" id="wrap">
+  <section class="card" id="signin">
+    <h1>Sign in</h1>
+    <p id="sub"></p>
+    <p class="err" id="err" role="alert"></p>
+    <form id="f" class="card" style="gap:14px">
+      <div class="field">
+        <input id="pw" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password" required autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button class="reveal" id="reveal" type="button" aria-pressed="false">Show</button>
+      </div>
+      <label class="check"><input id="keep" type="checkbox" checked> Stay signed in on this device</label>
+      <button class="btn" id="go" type="submit">Sign in</button>
+    </form>
+  </section>
+  <aside class="pair" id="pairBox" hidden>
+    <div class="qr" id="qr" role="img" aria-label="QR code to sign in this screen from your phone"></div>
+    <h2>Or scan with your phone</h2>
+    <p id="pairMsg"></p>
+  </aside>
+  <section class="card" id="sendBox" hidden>
+    <h1 id="sendTitle">Sign in the other screen?</h1>
+    <p id="sendMsg">This signs in the screen showing the code you scanned.</p>
+    <button class="btn" id="sendYes" type="button">Sign it in</button>
+    <button class="btn quiet" id="sendNo" type="button">Open the scoreboard here</button>
+  </section>
+</main>
+<script src="qr.js"></script>
+<script>
+(() => {
+  "use strict";
+  const STORE = "tw-points-key";
+  const SYNC = (document.querySelector('meta[name="tw-sync"]') || {}).content || "";
+  const $ = id => document.getElementById(id);
+  const b64 = u8 => btoa(String.fromCharCode(...u8));
+  const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const b64u = u8 => b64(u8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const unb64u = s => unb64(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
+  const store = {
+    get(){ try { return JSON.parse(localStorage.getItem(STORE) || "null"); } catch(e){ return null; } },
+    set(v){ try { localStorage.setItem(STORE, JSON.stringify(v)); } catch(e){} },
+    clear(){ try { localStorage.removeItem(STORE); } catch(e){} },
+  };
+  const busy = (on, label) => { document.body.dataset.busy = label || "Unlocking…"; document.body.classList.toggle("busy", on); };
+  const show = el => { for (const id of ["signin", "sendBox"]) $(id).hidden = id !== el; };
+
+  // A scanned QR code opens this page as …/points/#p=<id>.<screen's public key>
+  let target = null;
+  const m = location.hash.match(/^#p=([A-Za-z0-9_-]{22})\.([A-Za-z0-9_-]{80,100})$/);
+  if (m) { target = { id: m[1], pub: m[2] }; history.replaceState(null, "", location.pathname); }
+
+  if (!(window.crypto && crypto.subtle)) { busy(false); $("err").textContent = "This browser can't open the page. Try a newer browser."; $("go").disabled = true; return; }
+
+  // app.bin: "TWP1" | iterations (uint32) | salt (16) | iv (12) | AES-GCM ciphertext
+  const bin = fetch("app.bin", { cache: "no-cache" }).then(r => { if (!r.ok) throw new Error("missing"); return r.arrayBuffer(); }).then(buf => {
+    const u8 = new Uint8Array(buf);
+    if (String.fromCharCode(...u8.subarray(0, 4)) !== "TWP1") throw new Error("bad file");
+    return { iter: new DataView(buf).getUint32(4), salt: u8.slice(8, 24), iv: u8.slice(24, 36), ct: u8.subarray(36) };
+  });
+
+  async function keyFromPassword(pw, b){
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw.normalize("NFC")), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b.salt, iterations: b.iter }, base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
+  }
+  const importKey = raw => crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, true, ["decrypt"]);
+  async function open(key, b){
+    const plain = new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b.iv }, key, b.ct));  // throws if the key is wrong
+    const n = new DataView(plain.buffer).getUint32(0);
+    const index = JSON.parse(new TextDecoder().decode(plain.subarray(4, 4 + n)));
+    const body = plain.subarray(4 + n);
+    const files = {};
+    for (const f of index) files[f.p] = { type: f.t, bytes: body.subarray(f.o, f.o + f.n) };
+    return files;
+  }
+  async function remember(key, b){ store.set({ salt: b64(b.salt), key: b64(new Uint8Array(await crypto.subtle.exportKey("raw", key))) }); }
+
+  let launched = false;
+  function launch(files){
+    launched = true; stopPairing();
+    const urls = {}, text = p => new TextDecoder().decode(files[p].bytes);
+    for (const p in files) urls[p] = URL.createObjectURL(new Blob([files[p].bytes], { type: files[p].type }));
+    const host = JSON.parse(text("tw-host.json"));
+    window.TW_ASSET = u => urls[String(u).replace(/^\.\//, "")] || null;
+    window.TW_HOST = { ws: host.ws, state: host.state, signOut(){ store.clear(); location.reload(); } };
+
+    const doc = new DOMParser().parseFromString(text("index.html"), "text/html");
+    for (const link of doc.querySelectorAll('link[rel="stylesheet"]')) {
+      const href = link.getAttribute("href"), dir = href.replace(/[^/]*$/, "");
+      const css = text(href).replace(/url\((['"]?)([^'")]+)\1\)/g, (m, q, u) => {
+        if (/^(#|data:|blob:|https?:)/.test(u)) return m;
+        const parts = (dir + u).split("/"), out = [];
+        for (const s of parts) { if (s === "..") out.pop(); else if (s && s !== ".") out.push(s); }
+        const hit = urls[out.join("/")];
+        return hit ? `url("${hit}")` : "url(data:,)";
+      });
+      const style = doc.createElement("style"); style.textContent = css; link.replaceWith(style);
+    }
+    const scripts = [...doc.querySelectorAll("script[src]")].map(s => { s.remove(); return s.getAttribute("src"); });
+    const robots = document.querySelector('meta[name="robots"]');
+    document.head.replaceChildren(...[...doc.head.childNodes].map(n => document.importNode(n, true)), robots);
+    document.title = doc.title;
+    document.body.replaceWith(document.importNode(doc.body, true));
+    for (const src of scripts) {
+      const s = document.createElement("script"); s.src = urls[src]; s.async = false; document.body.appendChild(s);
+    }
+  }
+
+  /* ---------- phone side: send this device's key to the screen that showed the QR code ---------- */
+  let unlocked = null;   // { key, files, b } once this device is signed in
+  function offerSend(){
+    busy(false); show("sendBox"); $("sendYes").disabled = false; $("sendYes").focus();
+  }
+  $("sendYes").addEventListener("click", async () => {
+    $("sendYes").disabled = true; $("sendMsg").textContent = "Sending…";
+    try {
+      const tvPub = await crypto.subtle.importKey("raw", unb64u(target.pub), { name: "ECDH", namedCurve: "P-256" }, false, []);
+      const eph = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, false, ["deriveKey"]);
+      const shared = await crypto.subtle.deriveKey({ name: "ECDH", public: tvPub }, eph.privateKey, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const payload = new TextEncoder().encode(JSON.stringify({ salt: b64(unlocked.b.salt), key: b64(new Uint8Array(await crypto.subtle.exportKey("raw", unlocked.key))) }));
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(target.id) }, shared, payload));
+      const epk = new Uint8Array(await crypto.subtle.exportKey("raw", eph.publicKey));
+      const r = await fetch(`${SYNC}/pair?id=${target.id}`, { method: "POST", body: JSON.stringify({ epk: b64u(epk), iv: b64u(iv), ct: b64u(ct) }) });
+      if (!r.ok) throw new Error(r.status === 409 ? "used" : "send");
+      $("sendTitle").textContent = "All set";
+      $("sendMsg").innerHTML = '<span class="done">The other screen is opening now.</span>';
+      $("sendYes").hidden = true;
+    } catch(e){
+      $("sendMsg").textContent = e.message === "used" ? "That code was already used. Scan the new one on the screen." : "That didn't go through. Scan the code on the screen again.";
+      $("sendYes").disabled = false;
+    }
+  });
+  $("sendNo").addEventListener("click", () => launch(unlocked.files));
+
+  /* ---------- big-screen side: show a QR code and wait for a phone to send the key ---------- */
+  let pairTimer = null, pairRenew = null, pairing = null;
+  const bigScreen = () => SYNC && typeof qrcode === "function" && matchMedia("(min-width: 900px)").matches;
+  // The code drawn with round dots and softened corner squares.
+  function drawQR(qr){
+    const n = qr.getModuleCount(), q = 2;
+    const eye = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+    let dots = "";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (!eye(r, c) && qr.isDark(r, c)) dots += `M${c + .06},${r + .5}a.44,.44 0 1 0 .88 0a.44,.44 0 1 0-.88 0`;
+    const eyes = [[0, 0], [0, n - 7], [n - 7, 0]].map(([r, c]) =>
+      `<rect x="${c + .5}" y="${r + .5}" width="6" height="6" rx="2.2" fill="none" stroke="#000" stroke-width="1"/><rect x="${c + 2}" y="${r + 2}" width="3" height="3" rx="1.1" fill="#000"/>`).join("");
+    return `<svg viewBox="${-q} ${-q} ${n + 2 * q} ${n + 2 * q}" aria-hidden="true"><rect x="${-q}" y="${-q}" width="${n + 2 * q}" height="${n + 2 * q}" rx="2.5" fill="#fff"/><path d="${dots}" fill="#000"/>${eyes}</svg>`;
+  }
+  function stopPairing(){ clearTimeout(pairTimer); clearTimeout(pairRenew); pairing = null; }
+  async function startPairing(){
+    stopPairing();
+    if (!bigScreen() || launched || target) return;
+    try {
+      const kp = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, false, ["deriveKey"]);
+      const pub = b64u(new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey)));
+      const id = b64u(crypto.getRandomValues(new Uint8Array(16)));
+      const qr = qrcode(0, "M"); qr.addData(`${location.origin}${location.pathname}#p=${id}.${pub}`); qr.make();
+      $("qr").innerHTML = drawQR(qr);
+      $("pairBox").hidden = false; $("wrap").classList.add("has-pair");
+      pairing = { id, kp };
+      pairRenew = setTimeout(startPairing, 170000);   // the drop box only lasts 3 minutes: show a fresh code before then
+      poll();
+    } catch(e){ $("pairBox").hidden = true; $("wrap").classList.remove("has-pair"); }
+  }
+  function poll(){
+    const p = pairing; if (!p || launched) return;
+    pairTimer = setTimeout(async () => {
+      if (document.hidden) return poll();
+      try {
+        const r = await fetch(`${SYNC}/pair?id=${p.id}`, { cache: "no-store" });
+        if (r.status === 200) return receive(p, JSON.parse(await r.text()));
+      } catch(e){}
+      if (pairing === p) poll();
+    }, 2000);
+  }
+  async function receive(p, msg){
+    busy(true, "Signing in…");
+    try {
+      const epk = await crypto.subtle.importKey("raw", unb64u(msg.epk), { name: "ECDH", namedCurve: "P-256" }, false, []);
+      const shared = await crypto.subtle.deriveKey({ name: "ECDH", public: epk }, p.kp.privateKey, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64u(msg.iv), additionalData: new TextEncoder().encode(p.id) }, shared, unb64u(msg.ct));
+      const got = JSON.parse(new TextDecoder().decode(plain));
+      const b = await bin;
+      if (got.salt !== b64(b.salt)) throw new Error("old");
+      const key = await importKey(unb64(got.key));
+      const files = await open(key, b);
+      await remember(key, b);   // a screen signed in from a phone always stays signed in
+      launch(files);
+    } catch(e){
+      busy(false);
+      $("pairMsg").textContent = e.message === "old" ? "That phone has an old sign-in. Sign in again on the phone, then scan the new code." : "That didn't work. Scan the new code to try again.";
+      startPairing();
+    }
+  }
+
+  /* ---------- start ---------- */
+  function ready(files, key, b){
+    if (target) { unlocked = { files, key, b }; return offerSend(); }
+    launch(files);
+  }
+  (async () => {
+    let b;
+    try { b = await bin; } catch(e){ busy(false); $("err").textContent = "The page couldn't load. Check the connection and refresh."; return; }
+    const saved = store.get();
+    if (saved && saved.salt === b64(b.salt)) {
+      try { const key = await importKey(unb64(saved.key)); return ready(await open(key, b), key, b); }
+      catch(e){ store.clear(); }
+    }
+    if (saved) $("err").textContent = "The password has changed. Sign in again.";
+    if (target) $("sub").textContent = "Sign in on this phone first. Then it can sign in the other screen.";
+    busy(false); show("signin"); startPairing();
+    if (!target) $("pw").focus();
+  })();
+  addEventListener("resize", () => { if (!launched && !target && !$("signin").hidden && !!pairing !== bigScreen()) bigScreen() ? startPairing() : (stopPairing(), $("pairBox").hidden = true, $("wrap").classList.remove("has-pair")); });
+
+  $("reveal").addEventListener("click", () => {
+    const on = $("pw").type === "password";
+    $("pw").type = on ? "text" : "password";
+    $("reveal").textContent = on ? "Hide" : "Show"; $("reveal").setAttribute("aria-pressed", String(on));
+    $("pw").focus();
+  });
+  $("f").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pw = $("pw").value; if (!pw) return;
+    $("go").disabled = true; busy(true);
+    try {
+      const b = await bin, key = await keyFromPassword(pw, b);
+      let files;
+      try { files = await open(key, b); }
+      catch(err){ $("pw").value = ""; busy(false); $("go").disabled = false; $("err").textContent = "That's not the password."; $("pw").focus(); return; }
+      if ($("keep").checked) await remember(key, b);
+      ready(files, key, b);
+    } catch(err){ busy(false); $("go").disabled = false; $("err").textContent = "Something went wrong. Refresh and try again."; }
+  });
+})();
+</script>
+</body>
+</html>

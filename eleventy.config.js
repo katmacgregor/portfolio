@@ -7,8 +7,11 @@ module.exports = function (eleventyConfig) {
     "preview/CNAME": "CNAME",
     "preview/robots.txt": "robots.txt",
     "preview/.nojekyll": ".nojekyll",
+    // points files (made by `npm run lock-points`)
+    "preview/points": "points",
   });
   eleventyConfig.ignores.add("preview/assets/**");
+  eleventyConfig.ignores.add("preview/points/**");
 
   // "/work/mux.html" -> "../", "/doodles.html" -> "". Keeps asset links relative,
   // exactly like the hand-written pages were.

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "eleventy --serve",
     "build": "eleventy",
-    "deploy": "npm run build && gh-pages -d dist --dotfiles"
+    "deploy": "npm run build && gh-pages -d dist --dotfiles",
+    "lock-points": "node scripts/lock-points.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",
