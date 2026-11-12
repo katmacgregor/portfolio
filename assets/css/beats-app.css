@@ -2,8 +2,8 @@
    BEM: .beats-app is the stage; .beats-app__* are its parts. Re-theme through the --beats-app-* tokens. */
 
 .beats-app {
-  --beats-app-stage-bg: #ece6dc;
-  --beats-app-stage-radius: 18px;
+  --beats-app-stage-bg: var(--media-bg);
+  --beats-app-stage-radius: 10px;
   --beats-app-phone-body: #000;
 
   /* Android nav bar; JS blends the three states. rgb()/rgba()/hex only. */
@@ -38,7 +38,6 @@
 /* the app screens are fixed light-mode art; only the stage and button follow the theme */
 @media (prefers-color-scheme: dark) {
   .beats-app {
-    --beats-app-stage-bg: var(--media-bg);
     --beats-app-control: rgb(255 255 255 / .12);
     --beats-app-control-hover: rgb(255 255 255 / .2);
   }
