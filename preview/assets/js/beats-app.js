@@ -130,18 +130,19 @@
       var want = Math.min(end, Math.max(0, ms / 1000));
       var live = playing && visible && ms > 0 && want < end;
       if (live) {
-        if (v.paused || Math.abs(v.currentTime - want) > .2) { v.currentTime = want; v.play().catch(function () {}); }
+        if (!v.seeking && Math.abs(v.currentTime - want) > .4) v.currentTime = want;   // seeking on small drift makes mobile decoders stutter
+        if (v.paused) v.play().catch(function () {});
       } else {
         if (!v.paused) v.pause();
         if (Math.abs(v.currentTime - want) > .02) v.currentTime = want;
       }
     }
 
-    // if a clip is still buffering when its card arrives, hold the timeline (1.5 s at most) rather than show a card without its animation
+    // if a clip is short of data while it should be playing (at its start or mid-clip), hold the timeline (1.5 s in total at most) instead of letting it freeze
     var held = 0;
-    function clipReady(v, startMs) {
-      if (!useClips || !v.src || v.error || v.readyState >= 3) return true;
-      return !(t >= startMs - 60 && t < startMs + 400);
+    function clipReady(v, startMs, endSec) {
+      if (!useClips || !v.src || v.error || (v.readyState >= 3 && !v.seeking)) return true;
+      return !(t >= startMs - 60 && t < startMs + endSec * 1000);
     }
 
     function label() {
@@ -162,7 +163,7 @@
     function frame(now) {
       if (playing && visible) {
         var dt = now - last;
-        if (held < 1500 && !(clipReady(V1, T.tip1Clip) && clipReady(V2, T.tip2Clip))) { held += dt; dt = 0; }
+        if (held < 1500 && !(clipReady(V1, T.tip1Clip, CLIP1_END) && clipReady(V2, T.tip2Clip, CLIP2_END))) { held += dt; dt = 0; }
         t += dt;
         if (t >= TOTAL) {
           if (++loops >= LOOPS) { playing = false; ended = true; label(); t = 0; }
