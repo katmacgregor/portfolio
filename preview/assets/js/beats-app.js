@@ -130,7 +130,7 @@
       var want = Math.min(end, Math.max(0, ms / 1000));
       var live = playing && visible && ms > 0 && want < end;
       if (live) {
-        if (!v.seeking && Math.abs(v.currentTime - want) > .4) v.currentTime = want;   // seeking on small drift makes mobile decoders stutter
+        if (!v.seeking && Math.abs(v.currentTime - want) > 1) v.currentTime = want;   // never seek over small drift: a late decoder just runs a little behind, a seek makes it skip
         if (v.paused) v.play().catch(function () {});
       } else {
         if (!v.paused) v.pause();
