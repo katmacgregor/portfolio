@@ -1,0 +1,204 @@
+/* Beats app walkthrough stage. Markup: _includes/beats-app.html. Motion: assets/js/beats-app.js.
+   BEM: .beats-app is the stage; .beats-app__* are its parts. Re-theme through the --beats-app-* tokens. */
+
+.beats-app {
+  --beats-app-stage-bg: #ece6dc;
+  --beats-app-stage-radius: 18px;
+  --beats-app-phone-body: #000;
+
+  /* Android nav bar; JS blends the three states. rgb()/rgba()/hex only. */
+  --beats-app-nav-home: rgb(114 114 112);
+  --beats-app-nav-sheet: rgb(241 241 243);
+  --beats-app-nav-dark: rgb(97 97 97 / .57);
+  --beats-app-nav-icon-home: rgb(235 235 235);
+  --beats-app-nav-icon-sheet: rgb(100 98 101);
+  --beats-app-nav-icon-dark: rgb(210 210 210);
+  --beats-app-nav-icon-shadow: rgb(0 0 0 / .28);
+
+  --beats-app-pager-on: #000;
+  --beats-app-pager-off: #c5c5c5;
+
+  --beats-app-tap: rgb(90 174 201 / .55);
+
+  /* play/pause/replay button, styled like the speaker's expand button */
+  --beats-app-control: rgb(0 0 0 / .1);
+  --beats-app-control-hover: rgb(0 0 0 / .16);
+  --beats-app-control-ink: var(--text-secondary);
+  --beats-app-accent: var(--color-blue);
+
+  position: relative;
+  width: 100%; /* inline-size containment collapses it in a flex parent otherwise */
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--beats-app-stage-radius);
+  background: var(--beats-app-stage-bg);
+  container-type: inline-size;
+  cursor: pointer;
+}
+/* the app screens are fixed light-mode art; only the stage and button follow the theme */
+@media (prefers-color-scheme: dark) {
+  .beats-app {
+    --beats-app-stage-bg: var(--media-bg);
+    --beats-app-control: rgb(255 255 255 / .12);
+    --beats-app-control-hover: rgb(255 255 255 / .2);
+  }
+}
+
+/* the stage contains its own size, so the media box needs an explicit width when stacked */
+.gallery-entry__media--beats-app { width: 100%; }
+
+.beats-app__defs { position: absolute; width: 0; height: 0; }
+
+.beats-app__pair {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7cqw;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.beats-app__phone {
+  position: relative;
+  flex: none;
+  height: 82%;
+  aspect-ratio: 107.26 / 221.63;
+  container-type: inline-size;
+}
+.beats-app__phone--ios { will-change: opacity, transform; }
+
+/* screen clipped to the frame's cutout; the content box is the 1080x2340 screen */
+.beats-app__screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: url(#beats-app-clip-ios);
+}
+.beats-app__phone--android .beats-app__screen { clip-path: url(#beats-app-clip-android); }
+.beats-app__content {
+  position: absolute;
+  left: 3.78%;
+  top: 1.85%;
+  width: 91.8%;
+  height: 96.3%;
+  background: #fff;
+}
+.beats-app__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  fill: var(--beats-app-phone-body);
+}
+
+.beats-app__content img,
+.beats-app__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.beats-app__content img { object-fit: fill; user-select: none; -webkit-user-drag: none; }
+.beats-app__layer { will-change: transform, opacity; }
+
+/* until the script arms the layers (or with JS off) the stage shows just the two home screens */
+.beats-app:not(.is-ready) :is(.beats-app__layer, .beats-app__gfx, .beats-app__nav, .beats-app__tap, .beats-app__control) { visibility: hidden; }
+
+/* pairing dialog art: spinning scalloped circle behind the headphones */
+.beats-app__gfx { position: absolute; inset: 0; will-change: transform; }
+.beats-app__gfx .beats-app__blob,
+.beats-app__gfx .beats-app__headphones {
+  inset: auto; /* beat ".beats-app__content img" */
+  left: 49.91%;
+  top: 69.49%;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+.beats-app__gfx .beats-app__blob { width: 55.19%; animation: beats-app-spin 36s linear infinite; }
+.beats-app__gfx .beats-app__headphones { width: 26.5%; }
+@keyframes beats-app-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .beats-app__gfx .beats-app__blob { animation: none; } }
+
+.beats-app__pager-pill { position: absolute; top: 90.3%; height: .47%; border-radius: 99px; }
+
+/* the clip box is the tip card (922x1124 of the screen); the video is a slightly larger crop */
+.beats-app__clip {
+  position: absolute;
+  left: 7.222%;
+  top: 39.872%;
+  width: 85.37%;
+  height: 48.03%;
+  overflow: hidden;
+  border-radius: 7.6% / 6.2%;
+}
+.beats-app__clip video {
+  position: absolute;
+  left: -.217%;
+  top: -.178%;
+  width: 100.65%;
+  height: 100.36%;
+  object-fit: fill;
+}
+
+.beats-app__nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 6%;
+  background-color: var(--beats-app-nav-home);
+}
+.beats-app__nav svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke: var(--beats-app-nav-icon-home);
+  filter: drop-shadow(0 1px 1.5px var(--beats-app-nav-icon-shadow));
+}
+
+.beats-app__tap {
+  position: absolute;
+  width: 9.3%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--beats-app-tap);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.beats-app__control {
+  position: absolute;
+  right: 2.2cqw;
+  bottom: 2.2cqw;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--beats-app-control);
+  color: var(--beats-app-control-ink);
+  cursor: pointer;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+.beats-app__control:hover { background: var(--beats-app-control-hover); }
+.beats-app__control:focus-visible { outline: 2px solid var(--beats-app-accent); outline-offset: 2px; }
+.beats-app__control svg { display: block; width: 14px; height: 14px; }
+.beats-app__icon--pause, .beats-app__icon--play, .beats-app__icon--replay { display: none; }
+.beats-app__control[data-state="pause"]  .beats-app__icon--pause  { display: inline; }
+.beats-app__control[data-state="play"]   .beats-app__icon--play   { display: inline; }
+.beats-app__control[data-state="replay"] .beats-app__icon--replay { display: inline; }
+
+/* pointer devices: hidden while playing, shown on hover/focus and whenever paused or ended; touch always shows it */
+@media (hover: hover) and (pointer: fine) {
+  .beats-app__control[data-state="pause"] { opacity: 0; }
+  .beats-app:hover .beats-app__control,
+  .beats-app__control:focus-visible { opacity: 1; }
+}

@@ -1,0 +1,214 @@
+/* Beats app walkthrough: side-by-side iOS + Android phones, zoom to Android, pairing flow, tip cards.
+   Markup: _includes/beats.html. Motion: assets/js/beats.js. Everything is namespaced `beats-`.
+   Colours come from the site tokens in main.css (--color-blue, --text-secondary, ...) wherever one exists;
+   the rest are --beats-* tokens below so the section can be re-themed in one place. */
+
+.beats {
+  /* ---- tokens -------------------------------------------------------- */
+  --beats-stage-bg: #ece6dc;                          /* stage backdrop (placeholder: pick a site token when settled) */
+  --beats-stage-radius: 18px;
+  --beats-phone-body: #000;                           /* phone bezel: black in both themes, same as the proto phone's frame */
+
+  /* Android system nav bar. JS blends these three as the screen changes
+     (home grey -> white sheet -> blurred dark -> home). Use rgb()/rgba()/hex only. */
+  --beats-nav-home: rgb(114 114 112);
+  --beats-nav-sheet: rgb(241 241 243);
+  --beats-nav-dark: rgb(97 97 97 / .57);
+  --beats-nav-icon-home: rgb(235 235 235);
+  --beats-nav-icon-sheet: rgb(100 98 101);
+  --beats-nav-icon-dark: rgb(210 210 210);
+  --beats-nav-icon-shadow: rgb(0 0 0 / .28);
+
+  /* tip-card pager pills (JS swaps them as the cards change) */
+  --beats-dot-on: #000;
+  --beats-dot-off: #c5c5c5;
+
+  --beats-tap: rgb(90 174 201 / .55);                 /* tap ripple (the site blue at 55%) */
+
+  /* play / pause / replay button: same treatment as the speaker's expand button (--spk-control) */
+  --beats-control: rgb(0 0 0 / .1);
+  --beats-control-hover: rgb(0 0 0 / .16);
+  --beats-control-ink: var(--text-secondary);
+  --beats-accent: var(--color-blue);
+
+  position: relative;
+  width: 100%;                                       /* inline-size containment would otherwise collapse it inside a flex parent */
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--beats-stage-radius);
+  background: var(--beats-stage-bg);
+  container-type: inline-size;
+  cursor: pointer;
+}
+/* dark theme: the stage follows the site's media background.
+   The app screens themselves are fixed light-mode art, so the nav and dot colours stay as they are. */
+@media (prefers-color-scheme: dark) {
+  .beats {
+    --beats-stage-bg: var(--media-bg);
+    --beats-control: rgb(255 255 255 / .12);
+    --beats-control-hover: rgb(255 255 255 / .2);
+  }
+}
+
+/* in the home gallery: stacked on phones, the media box has no intrinsic width (the stage contains its own size), so give it the full row */
+.gallery-entry__media--beats { width: 100%; }
+
+/* ---- stage layout ---------------------------------------------------- */
+.beats-defs { position: absolute; width: 0; height: 0; }
+
+.beats-pair {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7cqw;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.beats-phone {
+  position: relative;
+  flex: none;
+  height: 82%;
+  aspect-ratio: 107.26 / 221.63;
+  container-type: inline-size;
+}
+.beats-phone--ios { will-change: opacity, transform; }
+
+/* the screen is clipped to the frame's inner cutout; the content box is the 1080x2340 screen */
+.beats-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: url(#beats-clip-ios);
+}
+.beats-phone--android .beats-screen { clip-path: url(#beats-clip-android); }
+.beats-content {
+  position: absolute;
+  left: 3.78%;
+  top: 1.85%;
+  width: 91.8%;
+  height: 96.3%;
+  background: #fff;
+}
+.beats-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  fill: var(--beats-phone-body);
+}
+
+.beats-content img,
+.beats-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.beats-content img { object-fit: fill; user-select: none; -webkit-user-drag: none; }
+.beats-layer { will-change: transform, opacity; }
+
+/* before the script has loaded and armed the layers (or with JS off) the stage is just the two home screens */
+.beats:not(.is-ready) :is(.beats-layer, .beats-gfx, .beats-nav, .beats-tap, .beats-ctl) { visibility: hidden; }
+
+/* ---- pairing dialog art: spinning scalloped circle behind the headphones ---- */
+.beats-gfx { position: absolute; inset: 0; will-change: transform; }
+.beats-gfx .beats-blob,
+.beats-gfx .beats-hp {
+  inset: auto;                                       /* beat the generic ".beats-content img" fill rule */
+  left: 49.91%;
+  top: 69.49%;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+.beats-gfx .beats-blob { width: 55.19%; animation: beats-spin 36s linear infinite; }
+.beats-gfx .beats-hp { width: 26.5%; }
+@keyframes beats-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .beats-gfx .beats-blob { animation: none; } }
+
+/* ---- tip cards: pager pills + video interiors ---------------------------- */
+.beats-dot { position: absolute; top: 90.3%; height: .47%; border-radius: 99px; }
+
+/* the clip box is the card itself (card = 922x1124 of the 1080x2340 screen); the video is a slightly larger crop */
+.beats-clip {
+  position: absolute;
+  left: 7.222%;
+  top: 39.872%;
+  width: 85.37%;
+  height: 48.03%;
+  overflow: hidden;
+  border-radius: 7.6% / 6.2%;
+}
+.beats-clip video {
+  position: absolute;
+  left: -.217%;
+  top: -.178%;
+  width: 100.65%;
+  height: 100.36%;
+  object-fit: fill;
+}
+
+/* ---- Android system nav bar (one fixed bar; JS sets its colours) ---------- */
+.beats-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 6%;
+  background-color: var(--beats-nav-home);
+}
+.beats-nav svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke: var(--beats-nav-icon-home);
+  filter: drop-shadow(0 1px 1.5px var(--beats-nav-icon-shadow));
+}
+
+.beats-tap {
+  position: absolute;
+  width: 9.3%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--beats-tap);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ---- play / pause / replay button ----------------------------------------- */
+.beats-ctl {
+  position: absolute;
+  right: 2.2cqw;
+  bottom: 2.2cqw;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--beats-control);
+  color: var(--beats-control-ink);
+  cursor: pointer;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+.beats-ctl:hover { background: var(--beats-control-hover); }
+.beats-ctl:focus-visible { outline: 2px solid var(--beats-accent); outline-offset: 2px; }
+.beats-ctl svg { display: block; width: 14px; height: 14px; }
+.beats-i-pause, .beats-i-play, .beats-i-replay { display: none; }
+.beats-ctl[data-state="pause"]  .beats-i-pause  { display: inline; }
+.beats-ctl[data-state="play"]   .beats-i-play   { display: inline; }
+.beats-ctl[data-state="replay"] .beats-i-replay { display: inline; }
+
+/* pointer devices: tucked away while playing, shown on hover/focus (always shown as Play or Replay); touch always shows it */
+@media (hover: hover) and (pointer: fine) {
+  .beats-ctl[data-state="pause"] { opacity: 0; }
+  .beats:hover .beats-ctl,
+  .beats-ctl:focus-visible { opacity: 1; }
+}
