@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="tw-sync" content="https://sync.katrinamacgregor.com">
+<meta name="tw-bin" content="app.598f181bc2.bin">
 <title>Sign in</title>
 <style>
 @font-face{font-family:"Mulish";src:url("/assets/fonts/Mulish-Variable.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
@@ -105,7 +106,8 @@ body.busy::after{content:attr(data-busy);position:fixed;inset:0;display:grid;pla
   if (!(window.crypto && crypto.subtle)) { busy(false); $("err").textContent = "This browser can't open the page. Try a newer browser."; $("go").disabled = true; return; }
 
   // app.bin: "TWP1" | iterations (uint32) | salt (16) | iv (12) | AES-GCM ciphertext
-  const bin = fetch("app.bin", { cache: "no-cache" }).then(r => { if (!r.ok) throw new Error("missing"); return r.arrayBuffer(); }).then(buf => {
+  const BIN = (document.querySelector('meta[name="tw-bin"]') || {}).content || "app.bin";
+  const bin = fetch(BIN, { cache: "no-cache" }).then(r => { if (!r.ok) throw new Error("missing"); return r.arrayBuffer(); }).then(buf => {
     const u8 = new Uint8Array(buf);
     if (String.fromCharCode(...u8.subarray(0, 4)) !== "TWP1") throw new Error("bad file");
     return { iter: new DataView(buf).getUint32(4), salt: u8.slice(8, 24), iv: u8.slice(24, 36), ct: u8.subarray(36) };
