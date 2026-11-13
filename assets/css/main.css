@@ -589,6 +589,7 @@ section { padding: 40px 0; }
 @media (max-width: 640px) {
   .gallery-entry, .gallery-entry--reverse,
   .work-entry, .work-entry--reverse { flex-direction: column; }
+  .gallery-entry__media-stack { width: 100%; }   /* stacked: the proto box spans the column like the other stages */
 }
 
 /* Same alternating media/text idea as .gallery-entry, sized for the

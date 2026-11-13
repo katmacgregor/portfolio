@@ -162,7 +162,7 @@
     }
     function frame(now) {
       if (playing && visible) {
-        var dt = now - last;
+        var dt = Math.min(now - last, 100);   // a hidden tab stops the frames; never jump ahead on return
         if (held < 1500 && !(clipReady(V1, T.tip1Clip, CLIP1_END) && clipReady(V2, T.tip2Clip, CLIP2_END))) { held += dt; dt = 0; }
         t += dt;
         if (t >= TOTAL) {

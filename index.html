@@ -23,11 +23,13 @@
   <link rel="stylesheet" href="assets/css/proto.css">
   <link rel="stylesheet" href="assets/css/speaker.css">
   <link rel="stylesheet" href="assets/css/beats-app.css">
+  <link rel="stylesheet" href="assets/css/beats-360.css">
   <script src="assets/js/partials.js"></script>
   <script src="assets/js/speaker.js" defer></script>
   <script src="assets/js/hero-rotator.js" defer></script>
   <script src="assets/js/proto-scrub.js" defer></script>
   <script src="assets/js/beats-app.js" defer></script>
+  <script src="assets/js/beats-360.js" defer></script>
 </head>
 <body>
 
@@ -56,10 +58,54 @@
     <p>Beats Electronics</p>
     <!-- <p class="section-intro">From hover states to beer</p> -->
     <div class="gallery-entry__wide">
-      <div class="gallery-entry__media">
-        <img src="assets/images/pexels-laurachouette-22696331.webp" width="1800" height="2700" loading="lazy" decoding="async" alt="Wireless headphones and a tablet on a table" />
-      </div>
-      <p class="gallery-entry__footnote">Photo: <a href="https://www.pexels.com/photo/wireless-headphones-and-tablet-22696331/" target="_blank" rel="noopener" class="link-border">Laura Chouette</a></p>
+      <div class="beats-360" data-beats-360>
+<div class="beats-360__stage" data-beats-360-stage role="group" aria-roledescription="carousel" aria-label="Beats 360 interchangeable cushions in four colors" tabindex="0">
+
+  <div class="beats-360__track">
+    <div class="beats-360__item" data-beats-360-tint="pink" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/pink.webp" alt="Beats 360 cushion, pink" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="sky" data-beats-360-item data-beats-360-start>
+      <img class="beats-360__cup" src="assets/images/beats-360/sky.webp" alt="Beats 360 cushion, light blue" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="volt" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/volt.webp" alt="Beats 360 cushion, yellow-green" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="cloud" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/cloud.webp" alt="Beats 360 cushion, light grey" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+  </div>
+
+  <img class="beats-360__shadow" src="assets/images/beats-360/shadow.webp" alt="" width="640" height="667" loading="lazy" decoding="async">
+  <img class="beats-360__frame" src="assets/images/beats-360/frame.webp" alt="" width="640" height="1230" loading="lazy" decoding="async">
+
+  <button class="beats-360__control" type="button" data-beats-360-control data-state="pause" aria-label="Pause animation">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <g class="beats-360__icon--pause" fill="currentColor"><rect x="3.8" y="3" width="3" height="10" rx=".9"/><rect x="9.2" y="3" width="3" height="10" rx=".9"/></g>
+      <path class="beats-360__icon--play" fill="currentColor" d="M4.6 3.1v9.8a.7.7 0 0 0 1.07.6l7.6-4.9a.7.7 0 0 0 0-1.2L5.67 2.5a.7.7 0 0 0-1.07.6z"/>
+      <g class="beats-360__icon--replay" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 8a5.4 5.4 0 1 0 1.7-3.9L2.6 5.6"/><path d="M2.6 2.4v3.2h3.2"/></g>
+    </svg>
+  </button>
+
+  <div class="beats-360__foot" data-beats-360-foot>
+    <!-- one line per cushion, in story order starting from the cushion marked data-beats-360-start; they stack in one cell so the box keeps the height of the longest -->
+    <div class="beats-360__callout" data-beats-360-callout aria-live="off">
+      <p class="beats-360__line is-active" data-beats-360-line>Beats 360 is the first Beats headphone with interchangeable ear and headband cushions.</p>
+      <p class="beats-360__line" data-beats-360-line>This feature lets users choose between different cushion materials for fit and comfort.</p>
+      <p class="beats-360__line" data-beats-360-line>The headphone identifies the attached cushion and adjusts its acoustic tuning to match.</p>
+      <p class="beats-360__line" data-beats-360-line>My team led this experience, coordinating the product design, electrical engineering, acoustics, human factors, and firmware teams.</p>
+    </div>
+
+    <div class="beats-360__pager">
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 1 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 2 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 3 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 4 of 4"></button>
+    </div>
+  </div>
+</div>
+</div>
+
       <div class="gallery-entry__text">
         <h3 class="subhead">Headphones, earbuds, speakers & accessories</h3>
         <p>I led the Beats Human Interface (HI) team to deliver end-to-end experiences across 7+ shipped hardware products and their companion software. This included new features like <a class="link-border link-accent" href="https://support.apple.com/guide/beats/use-beats-studio-pro-dev9148780ba/web" target="blank">USB Audio</a> and <a class="link-border link-accent" href="https://www.beatsbydre.com/heart-rate-monitoring" target="blank">heart rate monitoring</a> across products including Beats 360, Powerbeats Pro 2, Powerbeats Fit, Beats Studio Pro, Beats Pill and more.</p>
