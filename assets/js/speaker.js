@@ -531,12 +531,10 @@
     frame.style.setProperty("--dh", dh + "px"); frame.style.setProperty("--fit", Math.min(isExpanded && phoneView.matches ? 1 : .8, .9 * (H - dh) / (.285 * frame.offsetWidth)).toFixed(3));
   }
   var drawer = $("drawer"), slot = $("slot");
-  if (window.ResizeObserver) {
-    new ResizeObserver(function () {   // the slot is fluid: --w (px) feeds every size inside the frame, and narrow frames go square
-      var w = slot.offsetWidth; slot.style.setProperty("--w", w + "px"); slot.classList.toggle("is-small", w < 360);
-    }).observe(slot);
-    var fitObserver = new ResizeObserver(fitStage); fitObserver.observe(drawer); fitObserver.observe(frame);
-  }
+  new ResizeObserver(function () {   // the slot is fluid: --w (px) feeds every size inside the frame, and narrow frames go square
+    var w = slot.offsetWidth; slot.style.setProperty("--w", w + "px"); slot.classList.toggle("is-small", w < 360);
+  }).observe(slot);
+  var fitObserver = new ResizeObserver(fitStage); fitObserver.observe(drawer); fitObserver.observe(frame);
   /* ==========================================================================
      11. Drawer, drawer actions and keyboard shortcuts
      ========================================================================== */

@@ -102,14 +102,10 @@
     });
 
     // run only while on screen
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (entries) {
-        var on = entries[entries.length - 1].isIntersecting;
-        anims.forEach(function (a) { on ? a.play() : a.pause(); });
-      }, { threshold: 0.3 }).observe(el);
-    } else {
-      anims.forEach(function (a) { a.play(); });
-    }
+    new IntersectionObserver(function (entries) {
+      var on = entries[entries.length - 1].isIntersecting;
+      anims.forEach(function (a) { on ? a.play() : a.pause(); });
+    }, { threshold: 0.3 }).observe(el);
   }
 
   function init() { document.querySelectorAll(".footprint-walk").forEach(build); }

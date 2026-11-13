@@ -1,9 +1,5 @@
 // Home page Experience Prototyping animation: sizes the wire draw-ins, loops the sequence, and drives the stage-trail scrubber.
-  // Set each "draw-in" wire's --len to its EXACT rendered length, read
-  // straight from the browser via getTotalLength() — this runs before
-  // the observer below, so every wire is correctly fully-hidden (via
-  // stroke-dasharray/dashoffset in the CSS) from the very first paint,
-  // with no length mismatch and no stray round-cap dot.
+  // size each draw-in wire's --len from its rendered length (before the observer below), so it is hidden from the first paint
   const drawWireIds = ['wire-blue1', 'wire-red1', 'wire-red2', 'wire-blue2', 'wire', 'wire1', 'wire2'];
   drawWireIds.forEach((id) => {
     const el = document.getElementById(id);
@@ -13,18 +9,10 @@
     }
   });
 
-  // Continuous loop + timeline scrubber. The whole sequence plays through (thought bubble ->
-  // idea -> brainstorm -> storyboard -> code -> board -> LED on -> LED bulb grows into the
-  // mascot bulb's spot), holds the final frame, then restarts from scratch. proto.css keys
-  // every animation off `svg.svg-anim-gate:not(.is-paused)` (the same class partials.js's
-  // shared visibility-gate toggles), so restarting means toggling `.is-paused` off -> on -> off:
-  // adding it detaches every animation-name at once (snapping back to each element's base
-  // hidden state), removing it re-attaches them fresh from their own delay=0.
-  //
-  // The loop is driven by the animations' own clock (they all start together), so it stays in
-  // step when someone scrubs. The scrubber (the stage trail under the animation) pauses every
-  // animation through the Web Animations API and sets each one's currentTime; letting go holds
-  // the frame for a moment, then play continues from there.
+  // Loop and scrubber. The sequence plays through, holds its final frame, then restarts. proto.css keys every animation off
+  // `svg.svg-anim-gate:not(.is-paused)` (also toggled by partials.js), so toggling `.is-paused` on then off restarts them all from their base state.
+  // The loop follows the animations' own clock, so it stays in step when someone scrubs. The trail under the animation pauses every
+  // animation (Web Animations API) and sets its currentTime; on letting go the frame is held briefly, then playback continues.
   (function () {
     const protoLoop = document.getElementById('proto-loop');
     const scrub = document.getElementById('proto-scrub');
@@ -33,8 +21,7 @@
     const END = 13130;   // the latest-finishing entrance (the phone's slide-in) ends here
     const HOLD = 2000;   // hold on the final settled frame (bud + phone) before the loop resets (and fades, see .is-fading)
     const RESUME_MS = 1500;   // how long a scrubbed frame is held before playback continues
-    // Each icon marks where its stage begins (the playhead sits on it as the stage starts), except Ship, which marks the
-    // conclusion: the playhead reaches it when the whole animation has played. Tapping an icon jumps to that moment.
+    // Each icon marks where its stage begins; Ship marks the end. Tapping an icon jumps to that moment.
     const STAGES = [
       { name: 'Ideate',     at: 0 },        // bulb + stickies
       { name: 'Storyboard', at: 3246 },     // the framed panels
@@ -54,7 +41,7 @@
       return clock ? clock.currentTime : 0;
     }
 
-    // time <-> position along the trail (0 to 1): the playhead runs icon to icon, so it is on stage k's icon when that stage begins.
+    // time <-> position along the trail (0 to 1), icon to icon
     const SECTIONS = STAGES.length - 1;
     function posOf(t) {
       if (t >= END) return 1;
@@ -67,22 +54,19 @@
       const f = pos * SECTIONS, i = Math.min(SECTIONS - 1, Math.floor(f));
       return STAGES[i].at + (f - i) * (STAGES[i + 1].at - STAGES[i].at);
     }
-    // the last icon the playhead has reached (1ms of slack so landing exactly on an icon counts)
+    // the last icon the playhead has reached (1ms slack)
     function stageOf(t) { let k = 0; STAGES.forEach((s, i) => { if (t + 1 >= s.at) k = i; }); return k; }
 
     // ---- loop: restart after the hold ----
     let scrubbing = false, resetting = false, raf = 0;
     function restart() {
       resetting = true;
-      // Same fade-then-reset shape as the video loop-hold restart in partials.js
-      // (.loop-hold-fade/.is-fading): fade the whole canvas out first, reset underneath
-      // while it's invisible, then let it reappear already reset instead of visibly snapping.
+      // fade out, reset while invisible, then reappear already reset (same shape as the video loop-hold in partials.js)
       protoLoop.classList.add('is-fading');
       setTimeout(() => {
         protoLoop.classList.add('is-paused');
         protoLoop.classList.remove('is-fading');
-        // A synchronous forced reflow isn't enough to restart animations that are holding via
-        // animation-fill-mode:forwards: the re-add has to be deferred past an actual paint.
+        // re-adding must wait for a real paint, or animations holding via fill-mode:forwards don't restart
         requestAnimationFrame(() => requestAnimationFrame(() => { protoLoop.classList.remove('is-paused'); resetting = false; }));
       }, 400);
     }
@@ -162,12 +146,12 @@
       trail.addEventListener('pointerup', up);
       trail.addEventListener('pointercancel', up);
 
-      // keyboard (and screen readers): the hidden range input; PageUp / PageDown step between stages
+      // keyboard and screen readers: the hidden range input
       range.addEventListener('input', () => { hold(); seek(+range.value); release(); });
       range.addEventListener('keydown', e => {
         const t = +range.value, k = stageOf(t);
         let to = null;
-        if (e.key === 'PageDown') to = STAGES[clamp(k + 1, 0, LAST)].at;   // PageUp / PageDown step between stages
+        if (e.key === 'PageDown') to = STAGES[clamp(k + 1, 0, LAST)].at;   // Page keys step between stages
         else if (e.key === 'PageUp') to = STAGES[clamp(k - 1, 0, LAST)].at;
         else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') to = t + 250;   // arrows nudge a quarter second
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') to = t - 250;

@@ -40,16 +40,12 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   // Videos only play while actually in view, and pause otherwise.
   var videos = document.querySelectorAll('video');
-  if (videos.length && 'IntersectionObserver' in window) {
+  if (videos.length) {
     var videoObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         var v = entry.target;
         if (entry.isIntersecting) {
-          // A video with a loop-hold delay (see below) sits at its last
-          // frame between loops instead of looping natively, so it can
-          // report as "ended" here. Restart it from the top rather than
-          // calling play() on a video parked at its own duration, which
-          // most browsers just no-op.
+          // a loop-hold video parks on its last frame and reports ended; play() there is a no-op, so restart it
           if (v.ended) v.currentTime = 0;
           v.play().catch(function () {});
         } else {
@@ -60,14 +56,8 @@ document.addEventListener('DOMContentLoaded', function () {
     videos.forEach(function (v) { videoObserver.observe(v); });
   }
 
-  // Videos with data-loop-hold hold on their final frame for that many
-  // milliseconds before looping, instead of cutting straight back to
-  // frame one. Only restarts if the video is still on screen; if the
-  // hold elapses while scrolled away, the observer above resumes it
-  // (from frame one, per the v.ended check) next time it's back in view.
-  // The restart itself fades out (through the dark media placeholder
-  // background behind it), seeks, then fades back in, rather than
-  // snapping straight to frame one.
+  // data-loop-hold videos rest on their final frame for that many ms, then fade out, seek to the start and fade back in.
+  // Only restarts while on screen; otherwise the observer above resumes it from frame one when it returns.
   var holdVideos = document.querySelectorAll('video[data-loop-hold]');
   holdVideos.forEach(function (v) {
     v.removeAttribute('loop');
@@ -91,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fade/rise for content as it scrolls into view. Items entering in the same batch are staggered.
   var revealEls = document.querySelectorAll('.work-media, .work-media--pair, .gallery-entry, .work-entry, .extra-body img, .extra-body video, ' +
     '.text-emphasize p, section > .heading, section > h2, section > h2 + p, .hero__greeting, .hero__rotator, .error-404 > *, .section-intro, .highlights .col, .work-list__row, .about p, .contact');
-  if (revealEls.length && 'IntersectionObserver' in window) {
+  if (revealEls.length) {
     var revealObserver = new IntersectionObserver(function (entries) {
       var k = 0;
       entries.forEach(function (entry) {
@@ -103,8 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }, { threshold: 0.12 });
     revealEls.forEach(function (el) { revealObserver.observe(el); });
-  } else {
-    revealEls.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
   // Lazy images fade in once loaded (CSS hides them until img-loaded; craft handles its own).
@@ -114,25 +102,17 @@ document.addEventListener('DOMContentLoaded', function () {
     else { img.addEventListener('load', show); img.addEventListener('error', show); }
   });
 
-  // Inline <svg> work banners that animate (Disney Junior's day/night
-  // sky, Creative Technology's looping logo mark, etc) only run while
-  // scrolled into view, and stay paused for prefers-reduced-motion.
-  // Handles both CSS keyframe animations (via the .is-paused class,
-  // which main.css turns into animation-play-state: paused) and native
-  // SMIL animations (via the SVG root's own pauseAnimations/
-  // unpauseAnimations methods), since a given banner may use either or
-  // both.
+  // Animated inline <svg> banners run only while in view, and stay paused for reduced motion.
+  // .is-paused covers CSS keyframes (main.css); pauseAnimations covers SMIL.
   var animatedSvgs = document.querySelectorAll('svg.svg-anim-gate');
   if (animatedSvgs.length) {
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     animatedSvgs.forEach(function (svg) {
       if (reduceMotion) {
-        // CSS already disables the keyframe animations; pause any native
-        // SMIL animations too so nothing moves for reduced-motion users.
+        // CSS already stops the keyframes; stop SMIL too
         if (typeof svg.pauseAnimations === 'function') svg.pauseAnimations();
         return;
       }
-      if (!('IntersectionObserver' in window)) return;
       var svgObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
@@ -148,12 +128,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Masonry row-spans for the Doodles page. .draw-grid is a real CSS
-  // Grid (see main.css) so an item can span multiple columns, but Grid
-  // has no native masonry row-packing: each item's grid-row-end has to
-  // be set explicitly, sized to its own rendered height, or items would
-  // all sit on one shared row height instead of tiling like Pinterest.
-  // Recomputed on resize since narrower columns make taller renders.
+  // Doodles masonry: .draw-grid is a CSS Grid with no native masonry packing, so each item's grid-row-end is set
+  // from its rendered height, and recomputed on resize.
   var drawGrid = document.querySelector('.draw-grid');
   if (drawGrid) {
     var MASONRY_ROW_UNIT = 1; // px; matches grid-auto-rows in main.css
@@ -161,10 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var MASONRY_SETTLE_MS = 260;
     var masonryReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Re-span every item to its rendered height. With `settle`, items that moved are then
-    // eased from where they were last drawn to their new spot (FLIP, transform only), so a
-    // column-count change glides instead of jumping. `_pos` is each item's last layout
-    // position, relative to the grid.
+    // Re-span every item. With `settle`, items that moved glide from their last drawn spot to the new one (FLIP, transform only).
+    // `_pos` is each item's last position relative to the grid.
     function sizeMasonryItems(settle) {
       var items = [].filter.call(drawGrid.children, function (el) {
         return !el.classList.contains('doodle-expand');   // the hover button isn't a grid item
@@ -197,44 +171,31 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
     sizeMasonryItems();
-    // Width/height attributes give the browser an intrinsic ratio to
-    // size against immediately, but re-measure once everything has
-    // actually finished loading (and once more per item as each image/
-    // video resolves) as a safety net against any that were off on the
-    // first pass — a stale span leaves either a gap or an overlap.
+    // re-measure after load and as each image/video resolves, so a stale span can't leave a gap or overlap
     window.addEventListener('load', function () { sizeMasonryItems(); });
     var mediaEls = drawGrid.querySelectorAll('img, video');
     mediaEls.forEach(function (el) {
       var evt = el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load';
       el.addEventListener(evt, function () { sizeMasonryItems(); });
     });
-    // On a width change, re-span in the same frame the layout changes (so nothing is ever
-    // drawn overlapping) and let the items settle into place.
+    // on a width change, re-span in the same frame so nothing overlaps, then settle
     var masonryWidth = drawGrid.clientWidth;
     function onMasonryResize() {
       if (drawGrid.clientWidth === masonryWidth) return;
       masonryWidth = drawGrid.clientWidth;
       sizeMasonryItems(true);
     }
-    if (window.ResizeObserver) new ResizeObserver(onMasonryResize).observe(drawGrid);
-    else window.addEventListener('resize', onMasonryResize);
+    new ResizeObserver(onMasonryResize).observe(drawGrid);
   }
 
-  // Easter eggs: links marked .portkey-link (e.g. the Hogwarts doodle,
-  // which secretly leads to the real Harry Potter Halloween decor on
-  // the craft page) get the same "portkey activating" launch
-  // transition as the homepage word rotator's link to craft.html,
-  // instead of a plain page swap. The class is added right before the
-  // browser navigates; the matching animation lives in main.css/craft.css.
+  // .portkey-link links (e.g. the Hogwarts doodle) get the homepage rotator's portkey launch transition (styles in main.css/craft.css)
   document.querySelectorAll('a.portkey-link').forEach(function (a) {
     a.addEventListener('click', function () {
       document.documentElement.classList.add('portkey-launch');
     });
   });
 
-  // Cmd+Right (Ctrl+Right on Windows/Linux) jumps to the next case study
-  // from anywhere on a work/*.html page. Every one of those pages ends
-  // with a .work-next link, so this quietly does nothing anywhere else.
+  // Cmd/Ctrl+Right jumps to the next case study (only pages with a .work-next link)
   var nextLink = document.querySelector('.work-next');
   if (nextLink) {
     window.addEventListener('keydown', function (e) {
@@ -245,17 +206,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Doodles page: click an illustration to see it full-size in a
-  // lightbox, built once here and reused for every trigger. The
-  // portkey-link video is skipped since it already has its own click
-  // behavior (a secret link to the craft page).
-  //
-  // The lightbox steps through the same list of illustrations: previous /
-  // next buttons beside the image, left / right arrow keys, and a swipe on
-  // touch screens. Escape, the close button, or a click on the backdrop
-  // closes it. On devices with a real pointer, hovering an illustration
-  // shows a small expand button in its corner (one shared button, moved
-  // onto whichever illustration is hovered).
+  // Doodles lightbox: click an illustration to see it full size; previous/next, arrow keys and swipe step through them,
+  // Escape, the close button or the backdrop close it. The portkey-link video keeps its own click behaviour.
+  // With a real pointer, one shared expand button follows the hovered illustration.
   var doodleGrid = document.querySelector('.draw-grid');
   if (doodleGrid) {
     var ICONS = {
@@ -299,8 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fullSrc(el) { return el.getAttribute('data-full') || el.currentSrc || el.src; }
 
-    // Show one illustration: the thumbnail (already loaded) straight away, with the full-size
-    // file fading in over it once it has loaded and decoded. Videos open as they are.
+    // thumbnail first (already loaded), then the full-size file fades in over it once decoded; videos open as they are
     function showLightboxItem(index) {
       lightboxIndex = index;
       var el = lightboxItems[index];

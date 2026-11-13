@@ -15,12 +15,7 @@
   var tail = document.getElementById("rotator-tail");
   var wordCursor = document.getElementById("word-cursor");
 
-  // Per-word cursor icons, rendered as a real DOM element (positioned
-  // via mousemove below) instead of the native CSS `cursor:` property —
-  // that path routes through the OS cursor compositor and can go
-  // blocky on high-DPI screens no matter the source resolution. A DOM
-  // element just paints through the normal page compositor, so it
-  // stays as crisp as any other SVG here.
+  // Per-word cursor icons as a DOM element, not CSS `cursor:`, which goes blocky on high-DPI screens.
   var cursorIcons = {
     ship: '<svg viewBox="0 0 24 24" fill="none"><path d="M21.26,4.4C21.21,4.35 21.11,4.35 21.02,4.3L20.92,4.25L20.72,4.35L20.67,4.35L2.64,11.17L2.55,11.32C2.45,11.46 2.4,11.66 2.45,11.85C2.5,12.05 2.59,12.19 2.79,12.29L2.84,12.34L9.66,13.71L9.42,18.58L9.56,18.72C9.71,18.87 9.9,18.97 10.1,18.97C10.29,18.97 10.44,18.92 10.59,18.77L12.49,16.87L14.63,19.5C14.78,19.65 14.97,19.75 15.17,19.75C15.31,19.75 15.51,19.7 15.65,19.55L15.75,19.46L15.8,19.36C17.12,16.04 21.5,5.23 21.55,5.08C21.6,4.84 21.5,4.54 21.26,4.4Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/><path d="M21,4.8 L9.42,18.58" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
     design: '<svg viewBox="0 0 24 24" fill="none"><g transform="rotate(-35 12 12)"><rect x="3" y="10" width="18" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 10v2M10 10v2.5M13.5 10v2M17 10v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></g></svg>',
@@ -64,11 +59,7 @@
     btn.style.cursor = "";
   });
 
-  // Scrolling (wheel/trackpad/keyboard) moves the button out from under
-  // the pointer without firing a real mouse event, so mouseleave never
-  // triggers — the custom cursor is left stranded, visible wherever the
-  // pointer happens to be sitting on screen. Re-check on scroll and drop
-  // the hover state if the pointer isn't actually over the button anymore.
+  // Scrolling moves the button from under the pointer without a mouseleave, stranding the cursor; re-check on scroll.
   var scrollCheckPending = false;
   function checkCursorStillOverButton() {
     scrollCheckPending = false;
@@ -97,10 +88,7 @@
     });
   }
 
-  // Floor the stage at whichever of "code"/"craft" is actually wider in
-  // the real (loaded) font — short words stay compact instead of
-  // padding out to the longest word's width. "design" and "doodle"
-  // are genuinely longer and still grow past the floor when shown.
+  // Floor the stage width at the wider of "code"/"craft" so short words stay compact.
   function measureWordWidth(word) {
     var probe = document.createElement("span");
     probe.className = "rotator-letters";
@@ -142,19 +130,13 @@
   var STAGGER = 30;
   var ROTATE_INTERVAL = 2400;
 
-  // direction: 1 to advance forward, -1 to step back. Wraps both ways —
-  // plain `%` goes negative in JS when i is negative, so the index is
-  // normalized back into range before looking up the word.
+  // direction: 1 forward, -1 back; wraps both ways.
   function rotateWord(direction) {
     i += direction;
     var w = words[((i % words.length) + words.length) % words.length];
 
-    // Hard cutover, per letter: no fade, just a vertical push. Each
-    // outgoing letter slides up and out while the matching incoming
-    // letter slides up from below into its spot, staggered across the
-    // word so it cascades rather than moving as one flat block. The
-    // stage width and the "things" tail still animate via FLIP so
-    // neither the button/border nor the tail snap.
+    // Per letter: the outgoing letter slides up and out as the incoming one slides up from below, staggered across the word.
+    // The stage width and the tail animate via FLIP so neither snaps.
     var tailBefore = tail.getBoundingClientRect().left;
     var startWidth = stage.getBoundingClientRect().width;
 
@@ -162,8 +144,7 @@
     stage.style.width = startWidth + "px";
     void stage.offsetWidth;
 
-    // Ghost = a snapshot of the outgoing letters, stacked above the
-    // incoming word so both are visible during the crossover.
+    // ghost: a snapshot of the outgoing letters, stacked over the incoming word during the crossover
     var ghost = document.createElement("span");
     ghost.className = "rotator-ghost";
     ghost.innerHTML = letters.innerHTML;
@@ -181,9 +162,7 @@
     });
     void letters.offsetWidth;
 
-    // Measure the natural end width and the tail's resting position at
-    // that width, then snap back to the start width so there's
-    // somewhere for the transition to animate from.
+    // measure the end width and the tail's end position, then snap back to the start width to animate from
     stage.style.width = "auto";
     var endWidth = stage.getBoundingClientRect().width;
     var tailAfter = tail.getBoundingClientRect().left;
@@ -204,8 +183,7 @@
 
       ghostChars.forEach(function (c, idx) {
         setTimeout(function () {
-          // Push slightly further than -100% so descenders (g, y, p...)
-          // fully clear the clipped box instead of leaving a sliver.
+          // -110% so descenders clear the clipped box
           c.style.transform = "translateY(-110%)";
         }, idx * STAGGER);
       });
@@ -238,9 +216,7 @@
     autoTimer = null;
   }
 
-  // No point animating a word nobody can see — pause whenever the tab
-  // is backgrounded or the hero has scrolled out of the viewport, and
-  // pick back up once both are true again.
+  // pause while the tab is hidden or the hero is off screen
   var heroInViewport = true;
 
   function syncAutoRotateState() {
@@ -252,7 +228,7 @@
   }
 
   var heroEl = document.querySelector(".hero");
-  if (heroEl && "IntersectionObserver" in window) {
+  if (heroEl) {
     var heroObserver = new IntersectionObserver(function (entries) {
       heroInViewport = entries[0].isIntersecting;
       syncAutoRotateState();
@@ -264,9 +240,7 @@
 
   syncAutoRotateState();
 
-  // Manual navigation resets the auto-rotate clock so it doesn't fire a
-  // second change right on top of the one you just triggered — but only
-  // actually restarts it if it should be running right now.
+  // manual navigation restarts the clock so a second change doesn't land on top of it
   function restartAutoRotate() {
     stopAutoRotate();
     syncAutoRotateState();

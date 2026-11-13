@@ -214,10 +214,8 @@
       });
       Promise.all(waits).then(start);
     }
-    if ('IntersectionObserver' in window) {
-      var near = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { arm(); near.disconnect(); } }, { rootMargin: '800px 0px' });
-      near.observe(root);
-    } else arm();
+    var near = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { arm(); near.disconnect(); } }, { rootMargin: '800px 0px' });
+    near.observe(root);
   }
 
   [].forEach.call(document.querySelectorAll('[data-beats-app]'), init);
