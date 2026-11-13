@@ -1,0 +1,48 @@
+{#- Beats 360 cushion carousel with its copy (home page only; image paths are relative to the site root). -#}
+<div class="beats-360" data-beats-360>
+<div class="beats-360__stage" data-beats-360-stage role="group" aria-roledescription="carousel" aria-label="Beats 360 interchangeable cushions in four colors" tabindex="0">
+
+  <div class="beats-360__track">
+    <div class="beats-360__item" data-beats-360-tint="pink" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/pink.webp" alt="Beats 360 cushion, pink" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="sky" data-beats-360-item data-beats-360-start>
+      <img class="beats-360__cup" src="assets/images/beats-360/sky.webp" alt="Beats 360 cushion, light blue" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="volt" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/volt.webp" alt="Beats 360 cushion, yellow-green" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+    <div class="beats-360__item" data-beats-360-tint="cloud" data-beats-360-item>
+      <img class="beats-360__cup" src="assets/images/beats-360/cloud.webp" alt="Beats 360 cushion, light grey" width="640" height="667" loading="lazy" decoding="async">
+    </div>
+  </div>
+
+  <img class="beats-360__shadow" src="assets/images/beats-360/shadow.webp" alt="" width="640" height="667" loading="lazy" decoding="async">
+  <img class="beats-360__frame" src="assets/images/beats-360/frame.webp" alt="" width="640" height="1230" loading="lazy" decoding="async">
+
+  <button class="beats-360__control" type="button" data-beats-360-control data-state="pause" aria-label="Pause animation">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <g class="beats-360__icon--pause" fill="currentColor"><rect x="3.8" y="3" width="3" height="10" rx=".9"/><rect x="9.2" y="3" width="3" height="10" rx=".9"/></g>
+      <path class="beats-360__icon--play" fill="currentColor" d="M4.6 3.1v9.8a.7.7 0 0 0 1.07.6l7.6-4.9a.7.7 0 0 0 0-1.2L5.67 2.5a.7.7 0 0 0-1.07.6z"/>
+      <g class="beats-360__icon--replay" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 8a5.4 5.4 0 1 0 1.7-3.9L2.6 5.6"/><path d="M2.6 2.4v3.2h3.2"/></g>
+    </svg>
+  </button>
+
+  <div class="beats-360__foot" data-beats-360-foot>
+    <!-- one line per cushion, in story order starting from the cushion marked data-beats-360-start; they stack in one cell so the box keeps the height of the longest -->
+    <div class="beats-360__callout" data-beats-360-callout aria-live="off">
+      <p class="beats-360__line is-active" data-beats-360-line>Beats 360 is the first Beats headphone with interchangeable ear and headband cushions.</p>
+      <p class="beats-360__line" data-beats-360-line>This feature lets users choose between different cushion materials for fit and comfort.</p>
+      <p class="beats-360__line" data-beats-360-line>The headphone identifies the attached cushion and adjusts its acoustic tuning to match.</p>
+      <p class="beats-360__line" data-beats-360-line>My team led this experience, coordinating the product design, electrical engineering, acoustics, human factors, and firmware teams.</p>
+    </div>
+
+    <div class="beats-360__pager">
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 1 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 2 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 3 of 4"></button>
+      <button class="beats-360__pager-dot" type="button" data-beats-360-dot aria-label="Cushion 4 of 4"></button>
+    </div>
+  </div>
+</div>
+</div>

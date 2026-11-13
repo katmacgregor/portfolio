@@ -98,7 +98,8 @@ html.has-js .gallery-entry.gallery-entry--spk.is-visible { transform: none; }   
   width: 100%;
   aspect-ratio: calc(1 / var(--ar));
 }
-.spk-slot.is-small { --ar: 1; }                     /* narrow frames: square, so the drawer has room */
+.spk-slot.is-small { --ar: 1; }
+@media (max-width: 560px) { .spk-slot:not(.is-small) { --ar: .88; } }   /* phones: same shape as the other stages */                     /* narrow frames: square, so the drawer has room */
 
 .spk-frame {
   --t: 0;
@@ -552,7 +553,7 @@ html.spk-locked { overflow: hidden; scrollbar-gutter: stable; }
 }
 .spk-caption {
   font-size: var(--fs-head);
-  color: var(--spk-ink);
+  color: var(--text-muted);
   white-space: nowrap;
   min-width: 0;                                      /* very narrow frames: the caption ends in an ellipsis instead of being cut off */
   overflow: hidden;
@@ -564,7 +565,7 @@ html.spk-locked { overflow: hidden; scrollbar-gutter: stable; }
 .spk-caption.is-bump { animation: spk-bump 600ms ease; }
 .spk-snd { width: 1.05em; height: 1.05em; margin-right: .4em; vertical-align: -.15em; }
 @keyframes spk-bump {
-  0%, 100% { transform: none; color: var(--spk-ink-soft); }
+  0%, 100% { transform: none; color: var(--text-muted); }
   30% { transform: translateX(3px); color: var(--spk-ink); }
   60% { transform: translateX(-2px); }
 }

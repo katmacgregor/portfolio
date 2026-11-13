@@ -1,0 +1,227 @@
+/* Beats 360 cushion carousel. Markup: _includes/beats-360.html. Motion and swipe: assets/js/beats-360.js.
+   BEM: .beats-360 is the block (it only sets the container); .beats-360__stage is the 4:3 box; the rest are its parts.
+   Re-theme through the --beats-360-* tokens on the stage. */
+
+@property --beats-360-flood {
+  syntax: "<color>";
+  inherits: true;                         /* the ::before wash reads it from the stage */
+  initial-value: transparent;             /* so the wash fades in the first time JS sets it */
+}
+
+.beats-360 {
+  width: 100%;
+  container-type: inline-size;            /* cqw below measures this width, which is the stage's width */
+}
+
+.beats-360__stage {
+  --beats-360-bg: var(--media-bg);
+  --beats-360-radius: 10px;
+
+  /* art layout. --beats-360-foot is the height of the pager and copy at the bottom; JS measures it (beats-360.js)
+     so the art always fits above it. 1.922 is the frame image's height / width. */
+  --beats-360-stage-h: 75cqw;             /* the stage's height (4:3); narrow stages go square below */
+  --beats-360-gap: 7cqw;                  /* breathing room between the art and the copy */
+  --beats-360-art-w: min(var(--beats-360-art-cap, 28cqw), calc((var(--beats-360-stage-h) - var(--beats-360-foot, 0px) - var(--beats-360-gap) - 3cqw) / 1.922));   /* width of the frame and of each cushion image */
+  --beats-360-bottom: calc(var(--beats-360-foot, 0px) + var(--beats-360-gap));                                                       /* all art is bottom-aligned to this line */
+
+  /* tokens the JS works with (beats-360.js):
+     pitch        centre-to-centre cushion distance in cqw, unitless. JS multiplies it into drag distance and sets each cushion's --d (offset in pitches)
+     rest-scale   cushion size while travelling; JS sets --z (0 travelling, 1 locked) and the cushion scales from rest-scale up to 1 over SCALE ms
+     rest-drop    lowers a smaller, off-frame cushion to keep its bottom edge level with the locked one; eases to 0 with --z
+     twist        how far a cushion is turned while unlocked; JS sets --k (0 twisted in, 1 twisted out) over TWIST ms, clockwise = off */
+  --beats-360-pitch: 43;
+  --beats-360-rest-scale: .92;
+  --beats-360-rest-drop: calc(var(--beats-360-art-w) * .073);
+  --beats-360-twist: 20deg;
+
+  --beats-360-art-filter: brightness(1);  /* dark theme eases the art's brightness a touch */
+  --beats-360-sky-boost: saturate(1);     /* extra colour for the frame and the light blue cushion, which read pale on dark */
+
+  /* colour flood: a soft wash behind the art in the colour of the cushion on the frame. JS copies that cushion's
+     --beats-360-tint (an r g b triplet, set per cushion below) into --beats-360-flood at the moment it clicks in (lock() in beats-360.js),
+     and the registered property above blends the wash from one cushion's colour to the next, so the glow only changes after the click */
+  --beats-360-flood-alpha: .45;
+  --beats-360-tint: 204 158 120;
+  --beats-360-tint-strength: 1;            /* scales a single cushion's wash up or down (volt and cloud are toned down below) */
+  --beats-360-shadow: .9;                 /* peak opacity of the frame's shadow; JS sets --landed (0 to 1) so it fades with the twist */
+  --beats-360-dot: rgb(0 0 0 / .4);
+  --beats-360-dot-active: var(--text-primary);
+
+  /* play / pause / replay button: the same treatment as the Beats app walkthrough's (--beats-app-control) */
+  --beats-360-control: rgb(0 0 0 / .1);
+  --beats-360-control-hover: rgb(0 0 0 / .16);
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--beats-360-radius);
+  background: var(--beats-360-bg);
+  transition: --beats-360-flood 380ms ease-out;   /* JS sets the new colour when the cushion clicks in, so the glow only changes then */
+  touch-action: pan-y;                    /* vertical scroll stays with the page; horizontal drags are ours */
+  user-select: none;
+  cursor: grab;
+}
+/* phones: a square stage gives the art room above the copy */
+@container (max-width: 520px) {
+  .beats-360__stage { --beats-360-stage-h: 88cqw; --beats-360-art-cap: 33cqw; aspect-ratio: 1 / .88; }
+}
+/* the cushion colours behind the flood (r g b) and, where needed, how strongly each shows; the data-beats-360-tint values are in the markup */
+.beats-360__item[data-beats-360-tint="cloud"] { --beats-360-tint: 204 158 120; --beats-360-tint-strength: .65; }
+.beats-360__item[data-beats-360-tint="sky"]   { --beats-360-tint: 120 180 214; }
+.beats-360__item[data-beats-360-tint="volt"]  { --beats-360-tint: 200 214 60; --beats-360-tint-strength: .7; }
+.beats-360__item[data-beats-360-tint="pink"]  { --beats-360-tint: 232 150 200; }
+.beats-360__stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 85% at 50% 58%, color-mix(in srgb, var(--beats-360-flood) calc(var(--beats-360-flood-alpha) * 100%), transparent), transparent 78%);
+  pointer-events: none;
+}
+.beats-360.is-dragging .beats-360__stage { cursor: grabbing; }
+.beats-360__stage:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+@media (prefers-color-scheme: dark) {
+  .beats-360__stage {
+    --beats-360-dot: rgb(255 255 255 / .4);
+    --beats-360-control: rgb(255 255 255 / .12);
+    --beats-360-control-hover: rgb(255 255 255 / .2);
+    --beats-360-shadow: .5;
+    --beats-360-art-filter: brightness(.95);
+    --beats-360-sky-boost: saturate(1.7);
+    --beats-360-flood-alpha: .3;
+  }
+}
+
+/* JS sets three custom properties on each cushion every frame: --d (offset from the centre in cushions, 0 = centred), --z and --k (see tokens above) */
+.beats-360__item,
+.beats-360 .beats-360__shadow,
+.beats-360 .beats-360__frame {
+  position: absolute;
+  left: 50%;
+  bottom: var(--beats-360-bottom);
+  width: var(--beats-360-art-w);
+}
+.beats-360__item {
+  margin-left: calc(var(--beats-360-art-w) / -2);
+  transform: translate(calc(var(--d, 0) * var(--beats-360-pitch) * 1cqw), calc((1 - var(--z, 0)) * var(--beats-360-rest-drop)));
+  scale: calc(var(--beats-360-rest-scale) + var(--z, 0) * (1 - var(--beats-360-rest-scale)));   /* --z: 0 travelling, 1 locked at full size */
+  will-change: transform;
+}
+.beats-360 .beats-360__shadow,
+.beats-360 .beats-360__frame { transform: translateX(-50%); pointer-events: none; }
+.beats-360__item,
+.beats-360 .beats-360__frame { filter: var(--beats-360-art-filter); }
+.beats-360__item[data-beats-360-tint="sky"],
+.beats-360 .beats-360__frame { filter: var(--beats-360-art-filter) var(--beats-360-sky-boost); }
+
+/* the doubled class also outranks ".gallery-entry__media img" in main.css, in case this ever sits inside a media box */
+.beats-360 .beats-360__cup,
+.beats-360 .beats-360__shadow,
+.beats-360 .beats-360__frame {
+  display: block;
+  height: auto;
+  object-fit: fill;
+  -webkit-user-drag: none;
+}
+.beats-360 .beats-360__cup { width: 100%; }
+/* the frame's shadow on the cushion: sits between the cushions and the frame, fading in as a cushion lands (--landed: 0 to 1, set by JS) */
+.beats-360 .beats-360__shadow {
+  opacity: calc(var(--beats-360-shadow) * var(--landed, 1));
+  mix-blend-mode: multiply;
+}
+.beats-360 .beats-360__cup {
+  position: relative;
+  transform: rotate(calc(var(--k, 0) * var(--beats-360-twist)));   /* --k: 0 locked in the centre, 1 fully unlocked */
+}
+
+/* the click as a cushion locks in: it overshoots the end of the twist (a fraction of --beats-360-twist) and settles back.
+   JS adds .is-locking when the twist-in finishes (lock() in beats-360.js); the duration is independent of TWIST */
+.beats-360__item.is-locking { animation: beats-360-lock 260ms ease-out; }
+@keyframes beats-360-lock { 35% { rotate: calc(var(--beats-360-twist) * -.15); } }
+@media (prefers-reduced-motion: reduce) { .beats-360__item.is-locking { animation: none; } }
+
+/* bottom of the stage: the copy above the pager. JS keeps --beats-360-foot equal to this box's height */
+.beats-360__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.5cqw, 14px);          /* space between the copy and the pager; the art rises with it */
+  padding: 0 6cqw 1.6cqw;
+}
+
+/* copy that follows the cushions. Lines share one grid cell (the box keeps the longest line's height);
+   JS marks the active line .is-active and the line fades with --landed, so it changes only while a cushion is off the frame */
+.beats-360__callout {
+  display: grid;
+  max-width: 62ch;
+  text-align: center;
+}
+.beats-360__line {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: clamp(11px, 1.55cqw, 14px);
+  line-height: 1.6;
+  color: var(--text-muted);
+  opacity: 0;
+}
+.beats-360__line.is-active { opacity: var(--landed, 1); }
+
+/* pager */
+.beats-360__pager {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+.beats-360__pager-dot {
+  box-sizing: content-box;
+  width: 6px;
+  height: 6px;
+  padding: 6px 5px;                       /* roomy tap target around a small dot */
+  border: 0;
+  background: var(--beats-360-dot) content-box;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+.beats-360__pager-dot[aria-current="true"] { background-color: var(--beats-360-dot-active); }
+.beats-360__pager-dot:focus-visible { outline: 2px solid var(--color-blue); outline-offset: -4px; }
+
+/* play / pause / replay button. JS sets data-state (pause while playing, play to resume, replay at the last line) */
+.beats-360__control {
+  position: absolute;
+  right: 2.2cqw;
+  bottom: 2.2cqw;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--beats-360-control);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+.beats-360__control:hover { background: var(--beats-360-control-hover); }
+.beats-360__control:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+.beats-360__control svg { display: block; width: 14px; height: 14px; }
+.beats-360__icon--pause, .beats-360__icon--play, .beats-360__icon--replay { display: none; }
+.beats-360__control[data-state="pause"]  .beats-360__icon--pause  { display: inline; }
+.beats-360__control[data-state="play"]   .beats-360__icon--play   { display: inline; }
+.beats-360__control[data-state="replay"] .beats-360__icon--replay { display: inline; }
+
+/* pointer devices: tucked away while playing, shown on hover/focus and whenever paused or finished; touch always shows it */
+@media (hover: hover) and (pointer: fine) {
+  .beats-360__control[data-state="pause"] { opacity: 0; }
+  .beats-360__stage:hover .beats-360__control,
+  .beats-360__control:focus-visible { opacity: 1; }
+}
+
+/* in the home gallery the carousel replaces a media box, which carries this spacing below it */
+.gallery-entry__wide .beats-360 { margin-bottom: 20px; }
