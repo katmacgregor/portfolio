@@ -72,6 +72,7 @@
     --spk-control: rgb(255 255 255 / .12);
     --spk-control-hover: rgb(255 255 255 / .2);
     --spk-icon-off: #5c5e5e;
+    --spk-line-strong: var(--border);
   }
 }
 
@@ -127,6 +128,7 @@ html.has-js .gallery-entry.gallery-entry--spk.is-visible { transform: none; }   
   height: 100%;
   background: var(--media-bg);
   border-radius: 10px;
+  border: 2px solid var(--media-bg);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -642,6 +644,9 @@ html.spk-locked { overflow: hidden; scrollbar-gutter: stable; }
 @media (hover: none), (pointer: coarse) {
   .spk-kbd, .spk-how .spk-desk { display: none; }
   .spk-how .spk-touch { display: inline; }
+}
+@media (prefers-color-scheme: dark) {
+  .spk-kbd { opacity: 1; }
 }
 
 
