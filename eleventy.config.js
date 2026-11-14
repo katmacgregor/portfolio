@@ -1,5 +1,5 @@
 // Eleventy config. Source lives in preview/ (pages, _includes/), output goes to dist/.
-// Pages keep their file names and URLs (doodles.html, work/mux.html, ...); nothing is renamed to pretty URLs.
+// Pages are built as doodles.html, work/mux.html, ... and linked without the extension (GitHub Pages serves /work/mux); canonical and sitemap use the clean URLs.
 module.exports = function (eleventyConfig) {
   // Copied through untouched.
   eleventyConfig.addPassthroughCopy({

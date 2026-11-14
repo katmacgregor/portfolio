@@ -1,10 +1,10 @@
 {%- if nb.prev and nb.next -%}
     <div class="work-pagination wrap-width">
-      <a class="work-prev" href="{{ nb.prev.slug }}.html"><span class="work-next__index">{{ nb.prevNum }}</span> {{ nb.prev.title }}</a>
-      <a class="work-next" href="{{ nb.next.slug }}.html"><span class="work-next__index">{{ nb.nextNum }}</span> {{ nb.next.title }}</a>
+      <a class="work-prev" href="{{ nb.prev.slug }}"><span class="work-next__index">{{ nb.prevNum }}</span> {{ nb.prev.title }}</a>
+      <a class="work-next" href="{{ nb.next.slug }}"><span class="work-next__index">{{ nb.nextNum }}</span> {{ nb.next.title }}</a>
     </div>
 {%- elif nb.next -%}
-    <a class="work-next wrap-width" href="{{ nb.next.slug }}.html"><span class="work-next__index">{{ nb.nextNum }}</span> {{ nb.next.title }}</a>
+    <a class="work-next wrap-width" href="{{ nb.next.slug }}"><span class="work-next__index">{{ nb.nextNum }}</span> {{ nb.next.title }}</a>
 {%- else -%}
-    <a class="work-next wrap-width" href="{{ root }}index.html#work">Go to Work</a>
+    <a class="work-next wrap-width" href="{{ root or "./" }}#work">Go to Work</a>
 {%- endif -%}

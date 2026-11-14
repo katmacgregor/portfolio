@@ -12,13 +12,14 @@
   Paths are written from the site root; {{ root }} turns them into "../" form for pages in work/.
 -#}
 {%- set root = ("/" if absoluteRoot else (page.url | relroot)) -%}
+{%- set home = root or "./" -%}   {# the home page, without "index.html" in the URL #}
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {%- set pageTitle = fullTitle or (title + " · " + site.name) %}
-  {%- set pagePath = "/" if page.url == "/index.html" else page.url %}
+  {%- set pagePath = "/" if page.url == "/index.html" else page.url | replace(".html", "") %}   {# clean URLs: no "index.html" or ".html" #}
   <title>{{ pageTitle }}</title>
   {%- if description %}
   <meta name="description" content="{{ description }}">

@@ -24,11 +24,11 @@
   --beats-360-art-w: min(var(--beats-360-art-cap, 28cqw), calc((var(--beats-360-stage-h) - var(--beats-360-foot, 0px) - var(--beats-360-gap) - 3cqw) / 1.922));   /* width of the frame and of each cushion image */
   --beats-360-bottom: calc(var(--beats-360-foot, 0px) + var(--beats-360-gap));                                                       /* all art is bottom-aligned to this line */
 
-  /* tokens the JS works with (beats-360.js):
-     pitch        centre-to-centre cushion distance in cqw, unitless. JS multiplies it into drag distance and sets each cushion's --d (offset in pitches)
-     rest-scale   cushion size while travelling; JS sets --z (0 travelling, 1 locked) and the cushion scales from rest-scale up to 1 over SCALE ms
-     rest-drop    lowers a smaller, off-frame cushion to keep its bottom edge level with the locked one; eases to 0 with --z
-     twist        how far a cushion is turned while unlocked; JS sets --k (0 twisted in, 1 twisted out) over TWIST ms, clockwise = off */
+  /* tokens beats-360.js reads or drives:
+     pitch        centre-to-centre distance in cqw (unitless); JS turns it into drag distance and each cushion's --d
+     rest-scale   size while travelling; JS sets --z (0 travelling, 1 locked) to scale up to 1 over SCALE ms
+     rest-drop    lowers a smaller, off-frame cushion so its bottom edge stays level with the locked one
+     twist        angle while unlocked; JS sets --k (0 in, 1 out) over TWIST ms, clockwise = off */
   --beats-360-pitch: 43;
   --beats-360-rest-scale: .92;
   --beats-360-rest-drop: calc(var(--beats-360-art-w) * .073);

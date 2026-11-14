@@ -1,5 +1,5 @@
 <div class="work-header wrap-width">
-      <a class="work-header__back" href="{{ root }}index.html#{{ page.fileSlug }}">&larr; Work</a>
+      <a class="work-header__back" href="{{ root or "./" }}#{{ page.fileSlug }}">&larr; Work</a>
       <h1>{{ nb.self.title }}</h1>
       <p class="work-header__meta">{{ nb.num }} / {{ nb.self.role }} &middot; {{ nb.self.year }}</p>
     </div>

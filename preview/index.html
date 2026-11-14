@@ -169,7 +169,7 @@ description: "I'm an interaction design leader and builder with 15+ years of exp
     <p class="section-intro">At Disney, I evolved from designing static comps to building in code, developing a practice that merged design sensibility with software. That progression led to larger projects, broader systems thinking, and eventually leading my own team. These projects trace that evolution and the ideas that continue to shape how I design and lead.</p>
 
     <div class="work-list">
-{% for w in work %}      <a class="work-list__row" id="{{ w.slug }}" href="work/{{ w.slug }}.html">
+{% for w in work %}      <a class="work-list__row" id="{{ w.slug }}" href="work/{{ w.slug }}">
         <span class="work-list__index">{{ loop.index | string | padStart }}</span>
         <span class="work-list__title-group">
           <span class="work-list__title">{{ w.title }}</span>
@@ -182,7 +182,7 @@ description: "I'm an interaction design leader and builder with 15+ years of exp
   </section>
 
   <section id="about" class="about wrap-width">
-    <p>I love ramen, my golden retriever, and <a class="link-border" href="craft.html">easter eggs</a>.</p>
+    <p>I love ramen, my golden retriever, and <a class="link-border" href="craft">easter eggs</a>.</p>
     <p>Let's <span class="about-accent">make something</span> together.</p>
   </section>
 
