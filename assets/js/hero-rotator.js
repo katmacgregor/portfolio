@@ -1,22 +1,23 @@
 // Home page hero: the rotating word (design / ship / code / ...) and its custom cursor.
-  var words = [
+(function () {
+  const words = [
     { word: "design", target: "#work" },
     { word: "ship", target: "#ship" },
-    { word: "code", target: "work/mux.html" },
-    { word: "doodle", target: "doodles.html" },
+    { word: "code", target: "work/mux" },
+    { word: "doodle", target: "doodles" },
     { word: "solve", target: "#how-i-think" },
-    { word: "craft", target: "craft.html" }
+    { word: "craft", target: "craft" }
   ];
-  var i = 0;
-  var btn = document.getElementById("rotator-word");
-  var nextBtn = document.getElementById("rotator-next");
-  var stage = document.getElementById("rotator-stage");
-  var letters = document.getElementById("rotator-letters");
-  var tail = document.getElementById("rotator-tail");
-  var wordCursor = document.getElementById("word-cursor");
+  let i = 0;
+  const btn = document.getElementById("rotator-word");
+  const nextBtn = document.getElementById("rotator-next");
+  const stage = document.getElementById("rotator-stage");
+  const letters = document.getElementById("rotator-letters");
+  const tail = document.getElementById("rotator-tail");
+  const wordCursor = document.getElementById("word-cursor");
 
   // Per-word cursor icons as a DOM element, not CSS `cursor:`, which goes blocky on high-DPI screens.
-  var cursorIcons = {
+  const cursorIcons = {
     ship: '<svg viewBox="0 0 24 24" fill="none"><path d="M21.26,4.4C21.21,4.35 21.11,4.35 21.02,4.3L20.92,4.25L20.72,4.35L20.67,4.35L2.64,11.17L2.55,11.32C2.45,11.46 2.4,11.66 2.45,11.85C2.5,12.05 2.59,12.19 2.79,12.29L2.84,12.34L9.66,13.71L9.42,18.58L9.56,18.72C9.71,18.87 9.9,18.97 10.1,18.97C10.29,18.97 10.44,18.92 10.59,18.77L12.49,16.87L14.63,19.5C14.78,19.65 14.97,19.75 15.17,19.75C15.31,19.75 15.51,19.7 15.65,19.55L15.75,19.46L15.8,19.36C17.12,16.04 21.5,5.23 21.55,5.08C21.6,4.84 21.5,4.54 21.26,4.4Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/><path d="M21,4.8 L9.42,18.58" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
     design: '<svg viewBox="0 0 24 24" fill="none"><g transform="rotate(-35 12 12)"><rect x="3" y="10" width="18" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 10v2M10 10v2.5M13.5 10v2M17 10v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></g></svg>',
     solve: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 6H9A2 2 0 0 1 13 6H19V10A2 2 0 0 1 19 14V20H5V16A2 2 0 0 0 5 12V6Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
@@ -25,8 +26,8 @@
     craft: '<svg viewBox="0 0 24 24" fill="none"><circle cx="7" cy="17" r="3.2" stroke="currentColor" stroke-width="2.1"/><circle cx="17" cy="17" r="3.2" stroke="currentColor" stroke-width="2.1"/><path d="M9.5 15.6 18 7c.6-.6 1.6-.4 1.6.6 0 .3-.1.6-.4.9L12 16.1Z" fill="currentColor"/><path d="M14.5 15.6 6 7c-.6-.6-1.6-.4-1.6.6 0 .3.1.6.4.9l7.7 8.2Z" fill="currentColor"/><circle cx="12" cy="15.8" r="1.1" fill="currentColor"/></svg>'
   };
 
-  var isHoveringWord = false;
-  var cursorX = 0, cursorY = 0, cursorRafPending = false;
+  let isHoveringWord = false;
+  let cursorX = 0, cursorY = 0, cursorRafPending = false;
 
   function setCursorIcon(word) {
     wordCursor.innerHTML = cursorIcons[word] || "";
@@ -37,14 +38,14 @@
     cursorRafPending = false;
   }
 
-  btn.addEventListener("mouseenter", function () {
+  btn.addEventListener("mouseenter", () => {
     isHoveringWord = true;
     setCursorIcon(words[i % words.length].word);
     wordCursor.classList.add("is-visible");
     btn.style.cursor = "none";
   });
 
-  btn.addEventListener("mousemove", function (e) {
+  btn.addEventListener("mousemove", (e) => {
     cursorX = e.clientX;
     cursorY = e.clientY;
     if (!cursorRafPending) {
@@ -53,25 +54,25 @@
     }
   });
 
-  btn.addEventListener("mouseleave", function () {
+  btn.addEventListener("mouseleave", () => {
     isHoveringWord = false;
     wordCursor.classList.remove("is-visible");
     btn.style.cursor = "";
   });
 
   // Scrolling moves the button from under the pointer without a mouseleave, stranding the cursor; re-check on scroll.
-  var scrollCheckPending = false;
+  let scrollCheckPending = false;
   function checkCursorStillOverButton() {
     scrollCheckPending = false;
     if (!isHoveringWord) return;
-    var atPoint = document.elementFromPoint(cursorX, cursorY);
+    const atPoint = document.elementFromPoint(cursorX, cursorY);
     if (!atPoint || !btn.contains(atPoint)) {
       isHoveringWord = false;
       wordCursor.classList.remove("is-visible");
       btn.style.cursor = "";
     }
   }
-  window.addEventListener("scroll", function () {
+  window.addEventListener("scroll", () => {
     if (!scrollCheckPending) {
       scrollCheckPending = true;
       requestAnimationFrame(checkCursorStillOverButton);
@@ -80,8 +81,8 @@
 
   function buildChars(container, word) {
     container.innerHTML = "";
-    word.split("").forEach(function (ch) {
-      var span = document.createElement("span");
+    word.split("").forEach((ch) => {
+      const span = document.createElement("span");
       span.className = "rl-char";
       span.textContent = ch === " " ? " " : ch;
       container.appendChild(span);
@@ -90,28 +91,28 @@
 
   // Floor the stage width at the wider of "code"/"craft" so short words stay compact.
   function measureWordWidth(word) {
-    var probe = document.createElement("span");
+    const probe = document.createElement("span");
     probe.className = "rotator-letters";
     probe.style.position = "absolute";
     probe.style.visibility = "hidden";
     probe.style.whiteSpace = "nowrap";
     probe.textContent = word;
     stage.appendChild(probe);
-    var w = probe.getBoundingClientRect().width;
+    const w = probe.getBoundingClientRect().width;
     probe.remove();
     return w;
   }
 
   function syncMinWidth() {
-    var codeWidth = measureWordWidth("code");
-    var craftWidth = measureWordWidth("craft");
+    const codeWidth = measureWordWidth("code");
+    const craftWidth = measureWordWidth("craft");
     stage.style.minWidth = Math.max(codeWidth, craftWidth) + "px";
   }
 
   syncMinWidth();
   document.fonts.ready.then(syncMinWidth);
-  var resizeTimer;
-  window.addEventListener("resize", function () {
+  let resizeTimer;
+  window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(syncMinWidth, 150);
   });
@@ -120,43 +121,43 @@
   btn.setAttribute("data-target", words[i % words.length].target);
   btn.setAttribute("data-word", words[i % words.length].word);
 
-  btn.addEventListener("click", function () {
-    var t = btn.getAttribute("data-target");
+  btn.addEventListener("click", () => {
+    const t = btn.getAttribute("data-target");
     if (!t || t === "#") return;
-    if (t === "craft.html") document.documentElement.classList.add("portkey-launch");
+    if (t === "craft") document.documentElement.classList.add("portkey-launch");
     window.location.href = t;
   });
 
-  var STAGGER = 30;
-  var ROTATE_INTERVAL = 2400;
+  const STAGGER = 30;
+  const ROTATE_INTERVAL = 2400;
 
   // direction: 1 forward, -1 back; wraps both ways.
   function rotateWord(direction) {
     i += direction;
-    var w = words[((i % words.length) + words.length) % words.length];
+    const w = words[((i % words.length) + words.length) % words.length];
 
     // Per letter: the outgoing letter slides up and out as the incoming one slides up from below, staggered across the word.
     // The stage width and the tail animate via FLIP so neither snaps.
-    var tailBefore = tail.getBoundingClientRect().left;
-    var startWidth = stage.getBoundingClientRect().width;
+    const tailBefore = tail.getBoundingClientRect().left;
+    const startWidth = stage.getBoundingClientRect().width;
 
     stage.style.transition = "none";
     stage.style.width = startWidth + "px";
     void stage.offsetWidth;
 
     // ghost: a snapshot of the outgoing letters, stacked over the incoming word during the crossover
-    var ghost = document.createElement("span");
+    const ghost = document.createElement("span");
     ghost.className = "rotator-ghost";
     ghost.innerHTML = letters.innerHTML;
     stage.appendChild(ghost);
-    var ghostChars = ghost.querySelectorAll(".rl-char");
+    const ghostChars = ghost.querySelectorAll(".rl-char");
 
     buildChars(letters, w.word);
     btn.setAttribute("data-target", w.target);
     btn.setAttribute("data-word", w.word);
     if (isHoveringWord) setCursorIcon(w.word);
-    var newChars = letters.querySelectorAll(".rl-char");
-    newChars.forEach(function (c) {
+    const newChars = letters.querySelectorAll(".rl-char");
+    newChars.forEach((c) => {
       c.style.transition = "none";
       c.style.transform = "translateY(100%)";
     });
@@ -164,51 +165,51 @@
 
     // measure the end width and the tail's end position, then snap back to the start width to animate from
     stage.style.width = "auto";
-    var endWidth = stage.getBoundingClientRect().width;
-    var tailAfter = tail.getBoundingClientRect().left;
+    const endWidth = stage.getBoundingClientRect().width;
+    const tailAfter = tail.getBoundingClientRect().left;
     stage.style.width = startWidth + "px";
     void stage.offsetWidth;
 
-    var delta = tailBefore - tailAfter;
+    const delta = tailBefore - tailAfter;
     tail.style.transition = "none";
     tail.style.transform = "translateX(" + delta + "px)";
     void tail.offsetWidth;
 
-    requestAnimationFrame(function () {
+    requestAnimationFrame(() => {
       stage.style.transition = "width 0.45s cubic-bezier(0.16, 1, 0.3, 1)";
       stage.style.width = endWidth + "px";
 
       tail.style.transition = "";
       tail.style.transform = "translateX(0)";
 
-      ghostChars.forEach(function (c, idx) {
-        setTimeout(function () {
+      ghostChars.forEach((c, idx) => {
+        setTimeout(() => {
           // -110% so descenders clear the clipped box
           c.style.transform = "translateY(-110%)";
         }, idx * STAGGER);
       });
 
-      newChars.forEach(function (c, idx) {
-        setTimeout(function () {
+      newChars.forEach((c, idx) => {
+        setTimeout(() => {
           c.style.transition = "";
           c.style.transform = "translateY(0)";
         }, idx * STAGGER);
       });
     });
 
-    var longest = Math.max(ghostChars.length, newChars.length);
-    setTimeout(function () {
+    const longest = Math.max(ghostChars.length, newChars.length);
+    setTimeout(() => {
       ghost.remove();
       stage.style.transition = "none";
       stage.style.width = "auto";
     }, longest * STAGGER + 500);
   }
 
-  var autoTimer = null;
+  let autoTimer = null;
 
   function startAutoRotate() {
     if (autoTimer) return;
-    autoTimer = setInterval(function () { rotateWord(1); }, ROTATE_INTERVAL);
+    autoTimer = setInterval(() => { rotateWord(1); }, ROTATE_INTERVAL);
   }
 
   function stopAutoRotate() {
@@ -217,7 +218,7 @@
   }
 
   // pause while the tab is hidden or the hero is off screen
-  var heroInViewport = true;
+  let heroInViewport = true;
 
   function syncAutoRotateState() {
     if (heroInViewport && document.visibilityState === "visible") {
@@ -227,9 +228,9 @@
     }
   }
 
-  var heroEl = document.querySelector(".hero");
+  const heroEl = document.querySelector(".hero");
   if (heroEl) {
-    var heroObserver = new IntersectionObserver(function (entries) {
+    const heroObserver = new IntersectionObserver((entries) => {
       heroInViewport = entries[0].isIntersecting;
       syncAutoRotateState();
     }, { threshold: 0 });
@@ -246,12 +247,12 @@
     syncAutoRotateState();
   }
 
-  nextBtn.addEventListener("click", function () {
+  nextBtn.addEventListener("click", () => {
     rotateWord(1);
     restartAutoRotate();
   });
 
-  window.addEventListener("keydown", function (e) {
+  window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") {
       rotateWord(1);
       restartAutoRotate();
@@ -260,3 +261,4 @@
       restartAutoRotate();
     }
   });
+})();

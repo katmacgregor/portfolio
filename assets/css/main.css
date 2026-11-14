@@ -162,9 +162,8 @@
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: hidden; }
 
 /* Page transitions (cross-document view transitions; unsupported browsers just navigate).
-   The old page stays solid underneath while the new one fades in on top, so there is never a
-   moment where neither covers the background. Normal blending avoids the default additive
-   (plus-lighter) mix, which brightens when the two opacities don't sum to 1. */
+   The old page stays solid underneath while the new one fades in on top. Normal blending avoids the
+   default plus-lighter mix, which brightens when the two opacities don't sum to 1. */
 @view-transition {
   navigation: auto;
 }
@@ -180,10 +179,8 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: hidd
   @view-transition { navigation: none; }
 }
 
-/* Portkey launch — toggled on <html> by the hero rotator's click handler
-   right before navigating to craft.html, so leaving the page feels like
-   the portkey activating rather than a plain link click. The matching
-   arrival animation lives in craft.css. */
+/* Portkey launch: added to <html> by the hero rotator just before navigating to craft.
+   The arrival animation is in craft.css. */
 @property --reveal {
   syntax: "<percentage>";
   inherits: false;
@@ -310,10 +307,7 @@ img {
 .nav__logo { font-weight: 600; font-family: var(--font-display); color: var(--text-secondary); }
 .nav__links { display: flex; gap: 12px; color: var(--text-secondary); text-align:center; }
 
-/* The site-wide a:hover bold would otherwise reflow every link to its
-   right on hover. Fixed widths, roughly sized to fit each label at its
-   bold weight, keep the row stable — nudge these if any label's bold
-   state overflows its box in your fonts. */
+/* Fixed widths, sized to each label at its bold weight, so the site-wide a:hover bold doesn't reflow the links beside it. */
 .nav__links a {
   display: inline-block;
   white-space: nowrap;
@@ -374,11 +368,8 @@ img {
   flex-direction: column;
 }
 
-/* .hero__rotator button and the global button:focus-visible rule are
-   equal specificity (one class + one element each), so this button's
-   own background/color were silently winning on source order and
-   swallowing the focus-visible highlight entirely. Scoped one level
-   further so it actually wins. */
+/* Scoped one level deeper so it outranks the global button:focus-visible rule; at equal specificity this
+   button's own background/color won on source order and hid the focus highlight. */
 .hero__rotator button:focus-visible {
   outline: none;
   background: var(--color-blue);
@@ -386,13 +377,8 @@ img {
   border-radius: 2px;
 }
 
-/* Tiny custom cursor per rotating word — reinforces the word's meaning
-   rather than decorating it. This is a real DOM element positioned via
-   JS (see #word-cursor below), not the native `cursor:` CSS property —
-   native custom cursors get rasterized by the OS compositor and go
-   blocky on high-DPI displays no matter the source resolution. A DOM
-   element paints through the normal page compositor instead, so it
-   stays exactly as crisp as any other SVG on the page. */
+/* Per-word custom cursor: a DOM element moved by JS (#word-cursor), not CSS `cursor:`,
+   which the OS rasterises and blurs on high-DPI displays. */
 .word-cursor {
   position: fixed;
   top: 0;
@@ -425,10 +411,7 @@ img {
 .rotator-letters { display: inline-block; white-space: nowrap; }
 
 .rotator-ghost {
-  /* The outgoing word: pinned (not stretched) so it keeps its own
-     natural width, stacked above the incoming word. Its individual
-     letters push straight up and out, staggered — no fade, a hard
-     per-letter vertical crossover. */
+  /* The outgoing word: pinned at its own width and stacked above the incoming one; its letters push up and out, staggered. */
   position: absolute;
   top: 0;
   left: 0;
@@ -525,10 +508,7 @@ section { padding: 40px 0; }
 .gallery-entry__media + .gallery-entry__footnote {  margin-top: -12px; }
 .gallery-entry__footnote { margin: 10px 0 20px; font-size: 10px; color: var(--text-muted); text-align: right; font-style: italic; }
 
-/* Apple/Beats section: original abstract icon work standing in for
-   product photography and process imagery that's under NDA. Each is a
-   simple monoline illustration (not a depiction of any real product)
-   sized to fill the .gallery-entry__media box it sits in. */
+/* Apple/Beats section: original monoline icons standing in for NDA product imagery, sized to fill .gallery-entry__media. */
 .gallery-media-icon { width: 100%; height: 100%; display: block; color: var(--text-secondary); }
 
 /* Beeps & boops: waveform bars + LED dots, gently pulsing. Gated by
@@ -554,10 +534,8 @@ section { padding: 40px 0; }
    right badge/year is confirmed per project. */
 .awards {
   display: flex; gap: 10px; align-items: center; margin-bottom: 24px;
-  /* Inside a .work-entry row, this is a flex sibling of the text block,
-     so it needs align-self (not align-items) to opt out of that row's
-     own centering and sit at the top instead. Has no effect when
-     .awards isn't inside a flex container (e.g. Disney Junior). */
+  /* In a .work-entry row this is a flex sibling of the text, so align-self (not align-items) puts it at the top.
+   No effect outside a flex container (e.g. Disney Junior). */
   align-self: flex-start;
   padding-top: 12px;
 }
@@ -635,10 +613,8 @@ section { padding: 40px 0; }
   max-height: 480px;
 }
 
-/* Star Wars page: notch/flair callout animation dashes fade in one at
-   a time, and the two example groups fade in as a whole once their
-   dashes finish drawing. Reduced-motion users get the end state with
-   no animation (see the inline script's guard). */
+/* Star Wars page: the callout dashes fade in one at a time, then each example group fades in whole.
+   Reduced motion gets the end state (see the inline script). */
 .starwars-flair-demo .dash {
   opacity: 0;
   transition: opacity 0.15s ease-out;
@@ -824,22 +800,15 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
   .work-banner-fade::after, .work-banner-frame--svg::after { display: none; }
 }
 
-/* The default height clamp assumes a roughly 4:3-to-8:5 banner crop.
-   For a much wider/shorter banner image, forcing that same height
-   range zooms in and crops away most of the image. Size the box to
-   the image's own intrinsic ratio instead (from its width/height
-   attributes) so it displays uncropped, whatever that ratio is. */
+/* The default height clamp assumes a 4:3 to 8:5 crop, which would zoom into a much wider banner.
+   Size the box to the image's own ratio (from its width/height attributes) so it shows uncropped. */
 .work-banner--wide {
   height: auto;
 }
 
-/* Shared by any inline <svg> work banner that animates (Disney Junior's
-   day/night sky, Creative Technology's looping logo mark, etc). Same
-   wide-banner sizing as an image (height:auto driven by its own ratio),
-   but as an inline <svg> we set that ratio explicitly rather than
-   relying on viewBox inference. Paused state (added by partials.js,
-   based on scroll visibility and prefers-reduced-motion) freezes both
-   CSS keyframe animations and native SMIL ones share this one class. */
+/* Shared by animated inline <svg> banners (Disney Junior's sky, Creative Technology's logo mark).
+   Same sizing as an image banner, with the ratio set explicitly. partials.js adds .is-paused off screen and for
+   reduced motion, which freezes both CSS keyframes and SMIL. */
 .svg-anim-gate {
   aspect-ratio: 1400 / 360;
 }
@@ -859,11 +828,8 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
 .work-body .takeaways + p:last-of-type { margin-bottom: 70px; }
 .takeaways-strong { font-weight: 600; color: var(--text-primary); }
 
-/* Shared placeholder look for every media tile on case study/extra
-   pages, an img/video box with a dark background and rounded corners
-   while the asset itself loads or if its aspect ratio leaves gaps.
-   Each variant below only sets what actually differs: aspect ratio,
-   object-fit/position, and its own margin. */
+/* Shared placeholder for every media tile on case study pages: dark background and rounded corners while the asset loads.
+   Each variant below sets only what differs: ratio, object-fit/position, margin. */
 .work-entry__media img, .work-entry__media video,
 .work-media,
 .work-media--phone,
@@ -881,18 +847,12 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
   object-fit: cover; aspect-ratio: 16/9;
 }
 
-/* Videos that hold on their last frame before looping (see
-   data-loop-hold in partials.js) fade through the dark media
-   placeholder background behind them on restart, instead of
-   snapping straight back to frame one. */
+/* Videos with data-loop-hold (partials.js) fade through the placeholder background when they restart. */
 .loop-hold-fade { transition: opacity 0.4s ease; }
 .loop-hold-fade.is-fading { opacity: 0; }
 
-/* For screen recordings that are actually a portrait phone capture
-   pillarboxed inside a wider landscape frame (black bars baked into
-   the video's own pixels, not added by CSS). Cropping to the content's
-   real aspect ratio with object-fit: cover pushes the bars entirely
-   outside the visible frame instead of just shrinking them. */
+/* Portrait phone recordings pillarboxed inside a landscape frame: crop to the real content ratio with
+   object-fit: cover so the baked-in black bars fall outside the frame. */
 .work-media--phone {
   aspect-ratio: 9/16;
   max-width: 320px;
@@ -903,21 +863,19 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
 }
 .work-media--pair { display: flex; gap: 12px; margin: 32px 0; }
 .work-media--pair > img, .work-media--pair > video { flex: 1; min-width: 0; aspect-ratio: 4/3; object-fit: fill; object-position: top; }
+@media (max-width: 640px) {   /* phones: stack the pair at full width */
+  .work-media--pair { flex-direction: column; }
+  .work-media--pair > img, .work-media--pair > video { flex: none; width: 100%; }
+}
 
 .extra-header h1 { font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.01em; font-size: 34px; margin: 0 0 10px; }
 .extra-header p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin: 0 0 32px; }
 
 .extra-body img { border-radius: 8px; margin: 0 0 20px; }
 
-/* Pinterest-style masonry for the Doodles page, built on CSS Grid
-   rather than column-count: plain CSS columns can't let a single item
-   span more than one column, and .draw-wide-2 below needs that. Each
-   item keeps its own natural aspect ratio (no object-fit crop); its
-   row-span is computed in partials.js from its own rendered height,
-   since Grid has no native "masonry" row-packing yet. grid-auto-rows
-   is a small fixed unit for that math, with row-gap at 0 and the
-   visual vertical gap coming from each item's own margin-bottom
-   instead (see sizeMasonryItems in partials.js). */
+/* Doodles masonry on CSS Grid, not columns, so an item can span two columns (.draw-wide-2). Each item keeps its own ratio;
+   partials.js sets its row-span from its rendered height. grid-auto-rows is a 1px unit for that maths and
+   row-gap is 0, with the vertical gap coming from each item's margin-bottom. */
 .draw-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -945,10 +903,8 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
   .draw-grid .draw-wide-2 { grid-column: span 1; }
 }
 
-/* Easter egg wrapper: the Hogwarts travel-poster doodle is secretly a
-   link to the real Harry Potter Halloween decor on the craft page.
-   The anchor (not the video) is the actual masonry grid item here, so
-   its margin resets on the nested video to avoid doubling up. */
+/* Easter egg: the Hogwarts doodle links to the craft page's Halloween decor. The anchor is the masonry item,
+   so the nested video's margins reset to avoid doubling. */
 .draw-grid a.portkey-link {
   cursor: pointer;
 }
@@ -963,10 +919,8 @@ html.has-js:not(.rise-ready) .work-header h1 { visibility: hidden; }
   .draw-grid a.portkey-link:hover video { transform: none; }
 }
 
-/* Doodles page: click any illustration to see it full-size. The lightbox is
-   built once by partials.js and appended to <body>; this just styles it.
-   Excludes the portkey-link video, which already has its own click behavior
-   (navigating to the craft page). */
+/* Doodles lightbox, built by partials.js and appended to <body>; this only styles it.
+   The portkey-link video is excluded (it navigates instead). */
 .draw-grid .lightbox-trigger {
   cursor: pointer;
 }

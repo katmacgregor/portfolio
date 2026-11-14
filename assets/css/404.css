@@ -699,10 +699,8 @@
 #sparkle4 {
     animation: tap-sparkle4 6.5s cubic-bezier(0.45,0,0.55,1) infinite;
 }
-/* Each sparkle's "together" matrix already has an equal-and-opposite
-   rotation baked in relative to its parent slipper's rotation, so the
-   sparkle's absolute orientation stays fixed (light doesn't rotate) -
-   only its apparent size pulses, like a glint of light catching it. */
+/* Each sparkle's "together" matrix cancels its slipper's rotation, so the sparkle keeps a fixed orientation (light doesn't rotate)
+   and only its size pulses, like a glint. */
 @keyframes sparkle-pulse-0 {
     0% { transform: scale(1.0); }
     2.4% { transform: scale(0.68); }
@@ -868,15 +866,9 @@
     }
 }
 
-/* Clicking "home" doesn't navigate immediately — it plays three quick
-   taps first, then navigates. These are dedicated keyframes, not the
-   ambient loop sped up: the original tap-bg/tap-fg keyframes hold the
-   "together" pose for only 8.5%-14.6% of a leisurely 6.5s cycle, which
-   is fine for an idle loop but becomes ~50ms of motion (invisible) if
-   you just shorten the duration. These reuse the same apart/together
-   matrices but with breakpoints paced for a snappy, still-visible
-   500-600ms tap. Higher specificity than the SVG's own #slipper-bg /
-   #slipper-fg rules (class + id beats id alone), so no !important. */
+/* Clicking "home" plays three quick taps, then navigates (the script's timer matches 3 x 0.6s). These are dedicated keyframes:
+   the ambient tap-bg/tap-fg ones hold the "together" pose for only 8.5-14.6% of a 6.5s cycle, which becomes ~50ms if just sped up.
+   Same apart/together matrices, paced for a visible 500-600ms tap. Class + id outranks the SVG's own id rules, so no !important. */
 @keyframes tap-bg-click {
   0%, 100% { transform: matrix(0.939369,0,0,0.939369,66.096532,41.66542); }
   40%, 55% { transform: matrix(0.934801,-0.092524,0.092524,0.934801,-3.925063,166.312404); }

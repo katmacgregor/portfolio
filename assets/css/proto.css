@@ -1,15 +1,10 @@
 /* ---- animation states ---- */
-/* A linear multi-stage story that plays once per loop and holds its
-   final state — see the JS at the bottom. Elements sit at base (hidden)
-   styles with no animation-name until `svg.svg-anim-gate:not(.is-paused)`
-   is added to the SVG root; that attaches every animation-name at once
-   and each one runs on its own delay/duration from there. */
+/* A linear multi-stage story that plays once per loop and holds its final state. Elements sit at base (hidden) styles
+   until `svg.svg-anim-gate:not(.is-paused)` is added to the SVG root, which attaches every animation at once;
+   each then runs on its own delay and duration. */
 
-/* Whole-canvas fade for the loop reset, mirroring the video
-   loop-hold-fade pattern in main.css (.loop-hold-fade/.is-fading): the
-   JS fades #proto-loop out via .is-fading before resetting the
-   per-element animation state underneath, so the cut back to stage 1
-   reads as a fade rather than an instant snap. */
+/* Whole-canvas fade for the loop reset (same pattern as .loop-hold-fade in main.css): proto-scrub.js fades #proto-loop out,
+   resets the animations underneath, and the cut back to stage 1 reads as a fade. */
 #proto-loop { transition: opacity 0.4s ease; }
 #proto-loop.is-fading { opacity: 0; }
 
@@ -110,11 +105,8 @@ svg.svg-anim-gate:not(.is-paused) #_5 {
   100% { opacity: 0; transform: translate(0, 500px); }
 }
 
-/* moveToStoryboard's 700ms duration means the effective stroke-width
-   ramps from 0 to a full 8px alongside the position/size change — the
-   border "grows in" as the sticky lands, rather than popping in at the
-   end. Scale factor 1.31758 = 323.745/245.711 (measured from the
-   3-storyboard source geometry). */
+/* moveToStoryboard runs 700ms, so the stroke ramps from 0 to a full 8px with the move: the border grows in as the sticky lands.
+   Scale 1.31758 = 323.745/245.711 (measured from the storyboard geometry). */
 @keyframes moveToStoryboard {
   0%   { transform: translate(0, 0) scale(1); stroke-opacity: 0; fill-opacity: 1; }
   100% { transform: translate(var(--dx3), var(--dy3)) scale(1.31758); stroke-opacity: 1; fill-opacity: 0; }
@@ -151,19 +143,13 @@ svg.svg-anim-gate:not(.is-paused) #_2-content {
 svg.svg-anim-gate:not(.is-paused) #_2-content-unstretch {
   animation: unstretchToCanvas 480ms ease-in-out 4670ms forwards;
 }
-/* Reciprocals of toCanvas's own 0%/100% scale values (1/1.31758 and
-   1/4.37859, 1/2.96068). Only exact at those two endpoints — a linear
-   ease-in-out counter-curve isn't a true inverse of toCanvas's own
-   ease-in-out mid-transition — but close enough over a fast 480ms
-   window where the icon is also simultaneously fading to transparent. */
+/* Reciprocals of toCanvas's 0% and 100% scales (1/1.31758, 1/4.37859, 1/2.96068). Exact only at those endpoints, which is close enough
+   over a fast 480ms while the icon also fades out. */
 @keyframes unstretchToCanvas {
   0%   { transform: scale(0.75899, 0.75899); }
   100% { transform: scale(0.22839, 0.33776); }
 }
-/* _2 used to close the loop by shrinking/repositioning into "dot2"
-   (a rewind back to its stage-1/2 look) via toHollow/toDot2. It now
-   just fades out in place with everything else in the board group
-   instead — no more scale or reposition. */
+/* _2 fades out in place with the rest of the board group (no scale or reposition). */
 @keyframes toCanvas {
   0%   { transform: translate(var(--dx3), var(--dy3)) scale(1.31758); fill: #f2f2f2; fill-opacity: 1; stroke-opacity: 1; }
   100% { transform: translate(-382.847px, 276.294px) scale(4.37859, 2.96068); fill: #555; fill-opacity: 1; stroke-opacity: 1; }
@@ -270,11 +256,9 @@ svg.svg-anim-gate:not(.is-paused) #glow {
 /* #glow-travel is a duplicate of #glow's path (already green), placed as a sibling AFTER #earbud-reveal inside
    #bud-slide, so DOM order paints it on top (z-index on SVG shapes isn't reliable). It starts at #glow's
    position as #glow fades out and travels along glowMorphToBud, then rides #bud-slide's slide-left for free. */
-/* The #led-glow filter (see <defs>) is applied to the inner shape (#glow-travel-shape), so this wrapper only
-   handles opacity/transform. stdDeviation is in the ellipse's own pre-scale units and shrinks with the landing
-   scale and the viewBox, so 36 is needed for a visible halo, with the filter region widened to
-   -400%/900% (region padding is a % of the small bbox, so a bigger blur needs a bigger region or it clips).
-   cairosvg ignores feGaussianBlur, so tune this in a real browser. */
+/* The #led-glow filter is on the inner shape (#glow-travel-shape), so this wrapper only handles opacity and transform.
+   stdDeviation is in pre-scale units and shrinks with the landing scale, so 36 gives a visible halo; the filter region is widened
+   to -400%/900% so the blur doesn't clip. cairosvg ignores feGaussianBlur, so tune this in a real browser. */
 #glow-travel { opacity: 0; transform-box: fill-box; transform-origin: center; will-change: transform, opacity; }
 svg.svg-anim-gate:not(.is-paused) #glow-travel {
   animation:
@@ -311,10 +295,7 @@ svg.svg-anim-gate:not(.is-paused) #blink {
 /* --- 6: the reveal ---
    glow, already green, travels onto the earbud's status LED while earbud-reveal fades in underneath, so the dot
    lands on the earbud. The rest of the board fades out with it. */
-/* Reused by both #glow-travel (see above #glow's rule) and, in an
-   earlier pass, #glow itself — kept as one shared keyframe since the
-   translate/scale values describing the move onto the bud didn't
-   change, only which element plays it. */
+/* One shared keyframe set for the glow's move onto the bud. */
 @keyframes glowMorphToBud {
   0%   { transform: translate(0, 0) scale(1); }
   100% { transform: translate(15.244px, 571.032px) scale(0.2835, 0.30855); }
@@ -516,9 +497,8 @@ svg.svg-anim-gate:not(.is-paused) #count-3, svg.svg-anim-gate:not(.is-paused) #c
 
 
 /* ---- timeline scrubber: a trail of stage icons under the animation ----
-   The playhead (a bead on a dotted thread) rides along the trail as the story plays; drag it,
-   or tap a stage. Behaviour lives in the script at the bottom of index.html; a visually hidden
-   range input underneath gives keyboard and screen-reader access. */
+   The playhead (a bead on a dotted thread) follows the story; drag it or tap a stage (script: proto-scrub.js).
+   A visually hidden range input gives keyboard and screen-reader access. */
 .gallery-entry__media-stack { flex: 1; min-width: 0; }
 
 .proto-scrub {
